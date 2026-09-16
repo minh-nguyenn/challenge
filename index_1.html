@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Entstore Smart Search Mockup",
+  "schemaVersion": 1,
+  "description": "UI mockup nâng cấp website 遠鉄ストア: tìm kiếm thông minh, trang gợi ý (recipe/sản phẩm/khuyến mãi/bài viết/cửa hàng), công thức có AI đọc + danh sách đi chợ, sơ đồ siêu thị, màn hình quản lý khuyến mãi động. Data mẫu, liên kết shop.entstore.co.jp.",
+  "mcpTools": [],
+  "mcpServerNames": []
+}
+</script>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>遠鉄ストア｜スマート検索 UI Mockup</title>
+<style>
+:root{
+  --ent-red:#cf2339;
+  --ent-red-dark:#a61c2e;
+  --ent-green:#2e8b3a;
+  --ent-orange:#f39800;
+  --ent-cream:#fdf8f0;
+  --ent-gray:#f4f4f4;
+  --txt:#333;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",Meiryo,sans-serif;}
+body{background:#fff;color:var(--txt);}
+a{color:inherit;text-decoration:none;}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px;}
+
+/* ===== Header ===== */
+.topbar{background:var(--ent-red);color:#fff;font-size:12px;}
+.topbar .wrap{display:flex;justify-content:space-between;padding:4px 16px;}
+header{border-bottom:3px solid var(--ent-red);background:#fff;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.hd{display:flex;align-items:center;gap:20px;padding:10px 16px;}
+.logo{display:flex;align-items:center;gap:8px;cursor:pointer;}
+.logo .mark{width:40px;height:40px;border-radius:50%;background:var(--ent-red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;font-style:italic;}
+.logo .name{font-weight:800;font-size:20px;color:var(--ent-red);letter-spacing:1px;}
+.logo .sub{font-size:10px;color:#888;display:block;letter-spacing:2px;}
+nav{margin-left:auto;}
+nav ul{display:flex;gap:2px;list-style:none;}
+nav a{display:block;padding:8px 12px;font-size:13px;font-weight:600;border-radius:8px;}
+nav a:hover{background:var(--ent-gray);color:var(--ent-red);}
+nav a.shop-link{background:var(--ent-orange);color:#fff;}
+
+/* ===== NEW: Smart search bar ===== */
+.searchzone{background:linear-gradient(135deg,var(--ent-red) 0%,#e8556a 100%);padding:26px 0 30px;}
+.searchzone h2{color:#fff;text-align:center;font-size:20px;margin-bottom:4px;}
+.searchzone p.lead{color:#ffe3dd;text-align:center;font-size:12px;margin-bottom:14px;}
+.newtag{display:inline-block;background:#fff200;color:#a61c2e;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;margin-right:6px;vertical-align:middle;}
+.searchbox{max-width:640px;margin:0 auto;display:flex;background:#fff;border-radius:99px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+.searchbox input{flex:1;border:none;outline:none;padding:15px 24px;font-size:16px;}
+.searchbox button{border:none;background:var(--ent-red-dark);color:#fff;padding:0 28px;font-size:15px;font-weight:700;cursor:pointer;}
+.searchbox button:hover{background:#8a1a2a;}
+.hotwords{max-width:640px;margin:10px auto 0;text-align:center;}
+.hotwords span{font-size:11px;color:#ffd7d0;margin-right:6px;}
+.hotwords a{display:inline-block;background:rgba(255,255,255,.2);color:#fff;font-size:12px;padding:3px 12px;border-radius:99px;margin:2px;cursor:pointer;border:1px solid rgba(255,255,255,.4);}
+.hotwords a:hover{background:#fff;color:var(--ent-red);}
+
+/* ===== Sections ===== */
+section.block{padding:34px 0;}
+h3.sec{font-size:20px;font-weight:800;border-left:6px solid var(--ent-red);padding-left:12px;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+h3.sec small{font-size:11px;color:#999;font-weight:400;}
+.grid{display:grid;gap:16px;}
+.g4{grid-template-columns:repeat(4,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g2{grid-template-columns:repeat(2,1fr);}
+@media(max-width:800px){.g4,.g3{grid-template-columns:repeat(2,1fr);}}
+
+/* cards */
+.card{background:#fff;border:1px solid #eee;border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:.15s;position:relative;}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,.12);}
+.thumb{height:120px;display:flex;align-items:center;justify-content:center;font-size:52px;}
+.card .body{padding:10px 12px 14px;}
+.card .ttl{font-size:14px;font-weight:700;line-height:1.4;}
+.card .meta{font-size:11px;color:#888;margin-top:4px;}
+.price{font-size:16px;font-weight:800;color:var(--ent-red);margin-top:4px;}
+.price s{color:#aaa;font-size:12px;font-weight:400;margin-right:6px;}
+.badge{position:absolute;top:8px;left:8px;background:var(--ent-red);color:#fff;font-size:11px;font-weight:800;padding:3px 9px;border-radius:99px;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+.badge.sale{background:var(--ent-orange);}
+.badge.season{background:var(--ent-green);}
+.tagchip{display:inline-block;background:var(--ent-gray);font-size:10px;color:#666;padding:2px 8px;border-radius:99px;margin:2px 2px 0 0;}
+
+/* banners row */
+.banners{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.banner{border-radius:var(--radius);padding:18px;color:#fff;font-weight:800;font-size:15px;cursor:pointer;line-height:1.5;}
+.banner small{display:block;font-weight:400;font-size:11px;opacity:.9;margin-top:4px;}
+.bn1{background:linear-gradient(135deg,#06c755,#04a044);}
+.bn2{background:linear-gradient(135deg,var(--ent-orange),#e07b00);}
+.bn3{background:linear-gradient(135deg,#1e88e5,#0d5cb6);}
+
+/* ===== views ===== */
+.view{display:none;}
+.view.active{display:block;}
+.crumb{font-size:12px;color:#888;padding:14px 0 0;}
+.crumb a{color:var(--ent-red);cursor:pointer;}
+
+/* results */
+.result-head{background:var(--ent-cream);border:1px solid #f0e6d8;border-radius:var(--radius);padding:14px 18px;margin:16px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.result-head .kw{font-size:20px;font-weight:800;color:var(--ent-red);}
+.result-head .cnt{font-size:12px;color:#777;}
+.groupttl{font-size:16px;font-weight:800;margin:26px 0 12px;display:flex;align-items:center;gap:8px;}
+.groupttl .ic{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;}
+.empty{background:var(--ent-gray);border-radius:var(--radius);padding:30px;text-align:center;color:#888;font-size:14px;}
+.promo-strip{background:linear-gradient(90deg,#fff3e0,#ffe0b2);border:1px dashed var(--ent-orange);border-radius:var(--radius);padding:12px 16px;margin:14px 0;font-size:13px;display:flex;gap:10px;align-items:center;}
+.promo-strip b{color:#e07b00;}
+.season-strip{background:#eef7ee;border:1px dashed var(--ent-green);border-radius:var(--radius);padding:12px 16px;margin:14px 0;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.season-strip a{color:var(--ent-green);font-weight:700;cursor:pointer;text-decoration:underline;}
+
+/* detail pages */
+.detail{display:grid;grid-template-columns:340px 1fr;gap:26px;margin-top:18px;}
+@media(max-width:800px){.detail{grid-template-columns:1fr;}}
+.hero{border-radius:var(--radius);height:260px;display:flex;align-items:center;justify-content:center;font-size:110px;position:relative;}
+.dttl{font-size:24px;font-weight:800;margin-bottom:8px;}
+.dmeta{font-size:13px;color:#777;margin-bottom:12px;}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;}
+.btn{border:none;border-radius:99px;padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;}
+.btn.red{background:var(--ent-red);color:#fff;}
+.btn.green{background:var(--ent-green);color:#fff;}
+.btn.orange{background:var(--ent-orange);color:#fff;}
+.btn.line{background:#fff;border:2px solid var(--ent-red);color:var(--ent-red);}
+.btn:hover{opacity:.85;}
+.btn.speaking{background:#333;animation:pulse 1s infinite;}
+@keyframes pulse{50%{opacity:.6;}}
+table.ing{width:100%;border-collapse:collapse;font-size:14px;margin:10px 0 4px;}
+table.ing td{border-bottom:1px solid #eee;padding:8px 6px;}
+table.ing td:last-child{text-align:right;color:#666;}
+.steps{margin-top:10px;display:grid;gap:14px;}
+.step{display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:center;background:var(--ent-cream);border-radius:var(--radius);padding:12px;}
+.step .img{height:90px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;background:#fff;border:1px solid #eee;}
+.step .no{display:inline-block;background:var(--ent-red);color:#fff;font-size:11px;font-weight:800;border-radius:99px;padding:2px 10px;margin-bottom:5px;}
+.step p{font-size:13px;line-height:1.7;}
+.subttl{font-size:16px;font-weight:800;margin:20px 0 6px;border-left:4px solid var(--ent-red);padding-left:9px;}
+.promo-box{background:linear-gradient(90deg,#fff3e0,#ffe9cc);border:2px solid var(--ent-orange);border-radius:var(--radius);padding:14px 18px;margin:12px 0;}
+.promo-box .pt{font-weight:800;color:#c96a00;font-size:15px;}
+.promo-box .pd{font-size:12px;color:#8a5a20;margin-top:4px;}
+.relrow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px;}
+@media(max-width:800px){.relrow{grid-template-columns:repeat(2,1fr);}}
+
+/* map */
+#floorMap{width:100%;max-width:900px;display:block;margin:0 auto;}
+.maplegend{display:flex;gap:14px;justify-content:center;font-size:12px;color:#666;margin-top:10px;flex-wrap:wrap;}
+.maplegend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px;}
+
+/* shopping list modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:#fff;border-radius:16px;max-width:520px;width:92%;max-height:86vh;overflow:auto;padding:24px;}
+.modal h4{font-size:18px;font-weight:800;color:var(--ent-red);margin-bottom:4px;}
+.modal .note{font-size:11px;color:#999;margin-bottom:12px;}
+.shoplist li{list-style:none;display:flex;justify-content:space-between;border-bottom:1px dashed #ddd;padding:8px 2px;font-size:14px;}
+.shoplist .loc{font-size:11px;color:#fff;border-radius:99px;padding:2px 10px;font-weight:700;}
+.close-x{float:right;border:none;background:none;font-size:20px;cursor:pointer;color:#999;}
+
+/* admin */
+.admin{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+@media(max-width:800px){.admin{grid-template-columns:1fr;}}
+.panel{background:var(--ent-gray);border-radius:var(--radius);padding:18px;}
+.panel h4{font-size:15px;font-weight:800;margin-bottom:12px;}
+.panel label{display:block;font-size:12px;font-weight:700;margin:10px 0 4px;color:#555;}
+.panel input,.panel select,.panel textarea{width:100%;border:1px solid #ddd;border-radius:8px;padding:9px 12px;font-size:13px;background:#fff;}
+.panel textarea{font-family:monospace;height:150px;}
+.promolist{margin-top:8px;}
+.promoitem{background:#fff;border-radius:10px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;font-size:13px;border-left:4px solid var(--ent-orange);}
+.promoitem.expired{border-left-color:#bbb;opacity:.55;}
+.promoitem .del{margin-left:auto;border:none;background:#fce8e8;color:var(--ent-red);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;}
+.expnote{font-size:11px;background:#fff8e1;border:1px solid #ffe082;color:#8d6e00;border-radius:8px;padding:8px 12px;margin-top:10px;line-height:1.6;}
+
+footer{background:#333;color:#bbb;font-size:12px;margin-top:50px;}
+footer .wrap{padding:26px 16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+footer a{color:#ddd;margin-right:16px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#333;color:#fff;font-size:13px;padding:10px 22px;border-radius:99px;opacity:0;transition:.3s;z-index:200;}
+.toast.show{opacity:1;}
+.demo-ribbon{position:fixed;top:70px;right:-42px;background:#333;color:#fff;font-size:11px;padding:4px 50px;transform:rotate(45deg);z-index:60;opacity:.85;}
+</style>
+</head>
+<body>
+
+<div class="demo-ribbon">UI MOCKUP</div>
+
+<div class="topbar"><div class="wrap"><span>笑顔とともに、安全・安心・新鮮・おいしい食品をお届けします</span><span>📞 053-445-2020（9:30-17:30）</span></div></div>
+
+<header>
+  <div class="wrap hd">
+    <div class="logo" onclick="show('home')">
+      <div class="mark">e</div>
+      <div><span class="name">遠鉄ストア</span><span class="sub">ENTETSU STORE</span></div>
+    </div>
+    <nav><ul>
+      <li><a onclick="show('home')">ホーム</a></li>
+      <li><a href="https://www.entstore.co.jp/chirashi/" target="_blank">チラシ情報</a></li>
+      <li><a onclick="show('map')">店舗情報・売場マップ</a></li>
+      <li><a onclick="doSearch('レシピ')">レシピ集</a></li>
+      <li><a onclick="show('admin')">⚙ 特売管理</a></li>
+      <li><a class="shop-link" href="https://shop.entstore.co.jp/f/ec" target="_blank">ネット通販 🛒</a></li>
+    </ul></nav>
+  </div>
+</header>
+
+<!-- NEW smart search -->
+<div class="searchzone">
+  <h2><span class="newtag">NEW</span>なんでも検索 — 商品・レシピ・特売をまとめて探せる</h2>
+  <p class="lead">Tìm kiếm thông minh: sản phẩm・công thức・khuyến mãi trong một ô nhập</p>
+  <div class="searchbox">
+    <input id="q" type="text" placeholder="商品名・料理名・食材・店舗名を入力（例：うなぎ、カレー、上島店…）" onkeydown="if(event.key==='Enter')doSearch()">
+    <button onclick="doSearch()">🔍 検索</button>
+  </div>
+  <div class="hotwords" id="hotwords"><span>人気ワード:</span></div>
+</div>
+
+<!-- ============ HOME ============ -->
+<div class="view active" id="view-home">
+  <div class="wrap">
+    <section class="block">
+      <div class="banners">
+        <div class="banner bn1">LINE スタンプキャンペーン実施中！<small>友だち追加でポイントGET</small></div>
+        <div class="banner bn2" onclick="doSearch('特売')">🔥 今週の特売情報<small>Khuyến mãi tuần này — データ自動更新</small></div>
+        <div class="banner bn3" onclick="window.open('https://shop.entstore.co.jp/f/ec')">ネット通販 — 遠州の逸品を全国へ<small>shop.entstore.co.jp と連携</small></div>
+      </div>
+    </section>
+
+    <section class="block" style="padding-top:0;">
+      <h3 class="sec">🔥 いま実施中の特売 <small>／ Khuyến mãi đang diễn ra（期限切れは自動非表示）</small></h3>
+      <div class="grid g4" id="home-promos"></div>
+    </section>
+
+    <section class="block" style="padding-top:0;">
+      <h3 class="sec">🍳 今月のおすすめレシピ <small>／ Công thức gợi ý tháng này</small></h3>
+      <div class="grid g3" id="home-recipes"></div>
+    </section>
+
+    <section class="block" style="padding-top:0;">
+      <h3 class="sec">🌞 季節のおすすめ <small>／ Gợi ý theo mùa（7月・夏）</small></h3>
+      <div class="grid g4" id="home-season"></div>
+    </section>
+
+    <section class="block" style="padding-top:0;">
+      <h3 class="sec">📰 新着記事・お知らせ <small>／ Bài viết & thông báo（ブログと連携）</small></h3>
+      <div class="grid g4" id="home-articles"></div>
+    </section>
+
+    <section class="block" style="padding-top:0;">
+      <h3 class="sec">🏬 店舗のご案内 <small>／ Danh sách cửa hàng（店舗名でも検索できます）</small></h3>
+      <div class="grid g4" id="home-stores"></div>
+    </section>
+  </div>
+</div>
+
+<!-- ============ RESULTS ============ -->
+<div class="view" id="view-results">
+  <div class="wrap">
+    <div class="crumb"><a onclick="show('home')">ホーム</a> ＞ 検索結果</div>
+    <div class="result-head">「<span class="kw" id="r-kw"></span>」の検索結果 <span class="cnt" id="r-cnt"></span></div>
+    <div id="r-season"></div>
+    <div id="r-body"></div>
+  </div>
+</div>
+
+<!-- ============ RECIPE DETAIL ============ -->
+<div class="view" id="view-recipe">
+  <div class="wrap">
+    <div class="crumb"><a onclick="show('home')">ホーム</a> ＞ <a onclick="history.length&&show('results')">検索結果</a> ＞ レシピ</div>
+    <div class="detail" id="recipe-detail"></div>
+    <div class="subttl">🛒 このレシピの材料が買える関連商品</div>
+    <div class="relrow" id="recipe-rel"></div>
+  </div>
+</div>
+
+<!-- ============ PRODUCT DETAIL ============ -->
+<div class="view" id="view-product">
+  <div class="wrap">
+    <div class="crumb"><a onclick="show('home')">ホーム</a> ＞ <a onclick="show('results')">検索結果</a> ＞ 商品</div>
+    <div class="detail" id="product-detail"></div>
+    <div class="subttl">🍳 この商品を使ったレシピ</div>
+    <div class="relrow" id="product-rel"></div>
+  </div>
+</div>
+
+<!-- ============ MAP ============ -->
+<div class="view" id="view-map">
+  <div class="wrap">
+    <section class="block">
+      <h3 class="sec">🗺 売場マップ <small>／ Sơ đồ siêu thị（最新版）— 買い物リストの売場をハイライト表示</small></h3>
+      <svg id="floorMap" viewBox="0 0 900 480"></svg>
+      <div class="maplegend">
+        <span><i style="background:#a5d6a7"></i>青果</span>
+        <span><i style="background:#90caf9"></i>鮮魚</span>
+        <span><i style="background:#ef9a9a"></i>精肉</span>
+        <span><i style="background:#ffe082"></i>惣菜・弁当</span>
+        <span><i style="background:#ce93d8"></i>日配・乳製品</span>
+        <span><i style="background:#ffcc80"></i>グロサリー</span>
+        <span><i style="background:#b0bec5"></i>レジ・サービス</span>
+        <span><i style="background:#fff59d;border:2px solid #f39800"></i>買い物リストの売場</span>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ============ ADMIN ============ -->
+<div class="view" id="view-admin">
+  <div class="wrap">
+    <section class="block">
+      <h3 class="sec">⚙ 特売情報 管理画面 <small>／ Nơi nhập dữ liệu khuyến mãi（demo・社内用）</small></h3>
+      <div class="admin">
+        <div class="panel">
+          <h4>📝 フォームで登録 / Nhập bằng form</h4>
+          <label>対象商品 / Sản phẩm</label>
+          <select id="ad-product"></select>
+          <label>キャンペーン名 / Tên chương trình</label>
+          <input id="ad-title" placeholder="例：夏のうなぎ祭り">
+          <label>特売価格（円）/ Giá KM</label>
+          <input id="ad-price" type="number" placeholder="980">
+          <label>終了日 / Ngày kết thúc</label>
+          <input id="ad-end" type="date">
+          <div class="btnrow"><button class="btn red" onclick="addPromoForm()">＋ 登録する</button></div>
+          <div class="expnote">⏰ <b>動的データ:</b> 終了日を過ぎた特売は自動的に一覧・検索結果・商品ページから除外されます。<br>Dữ liệu động: hết hạn → tự động gỡ khỏi mọi trang, không ảnh hưởng logic về sau.</div>
+        </div>
+        <div class="panel">
+          <h4>💾 JSONで一括登録 / Nhập hàng loạt bằng JSON</h4>
+          <textarea id="ad-json"></textarea>
+          <div class="btnrow"><button class="btn orange" onclick="importJson()">⬆ JSON取込</button></div>
+          <h4 style="margin-top:16px;">📋 登録済み特売 / Danh sách hiện tại</h4>
+          <div class="promolist" id="ad-list"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- shopping list modal -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <button class="close-x" onclick="closeModal()">✕</button>
+    <h4>🛒 お買い物リスト / Danh sách đi chợ</h4>
+    <div class="note">レシピの材料から自動作成。売場は「売場マップ」でハイライトされます。</div>
+    <ul class="shoplist" id="shoplist"></ul>
+    <div class="btnrow" style="margin-top:14px;">
+      <button class="btn green" onclick="closeModal();showMapWithHighlights()">🗺 売場マップで見る</button>
+      <button class="btn line" onclick="closeModal()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a href="https://www.entstore.co.jp/" target="_blank">遠鉄ストア公式</a>
+      <a href="https://shop.entstore.co.jp/f/ec" target="_blank">ネット通販</a>
+      <a href="https://www.entstore.co.jp/chirashi/" target="_blank">チラシ情報</a>
+      <a href="https://www.entstore.co.jp/service/recipe/" target="_blank">レシピ集</a>
+    </div>
+    <div>© ENTETSU STORE — UI改善提案モックアップ（デモ用サンプルデータ）</div>
+  </div>
+</footer>
+
+<script>
+/* =====================================================
+   DEMO DATA — 実運用では下記から取得:
+   ・商品/価格: https://shop.entstore.co.jp/f/ec (EC API)
+   ・レシピ: Kitchen365 / entstore.co.jp/service/recipe/
+   ・特売: チラシ(/chirashi)・EC + 管理画面(JSON)の動的データ
+   ・記事: entstore.co.jp ブログ/お知らせ・サービス情報
+   ・店舗: entstore.co.jp 店舗情報
+===================================================== */
+const PRODUCTS = [
+ {id:'p1', name:'浜名湖うなぎ 蒲焼', kana:'うなぎ', price:3980, cat:'鮮魚', area:'fish', icon:'🐟', bg:'#e3f2fd', tags:['うなぎ','鰻','蒲焼','浜名湖','夏','土用'], url:'https://shop.entstore.co.jp/f/ec'},
+ {id:'p2', name:'浜松餃子 20個入', kana:'ぎょうざ', price:580, cat:'惣菜', area:'deli', icon:'🥟', bg:'#fff3e0', tags:['餃子','ぎょうざ','浜松','惣菜'], url:'https://shop.entstore.co.jp/f/ec'},
+ {id:'p3', name:'クラウンマスクメロン', kana:'めろん', price:5400, cat:'青果', area:'produce', icon:'🍈', bg:'#e8f5e9', tags:['メロン','果物','フルーツ','ギフト','マスクメロン'], url:'https://shop.entstore.co.jp/f/ec'},
+ {id:'p4', name:'三ヶ日みかんジュース', kana:'みかん', price:860, cat:'飲料', area:'grocery', icon:'🍊', bg:'#fff8e1', tags:['みかん','ジュース','三ヶ日','飲み物'], url:'https://shop.entstore.co.jp/f/ec'},
+ {id:'p5', name:'国産豚バラ肉 100g', kana:'ぶたにく', price:198, cat:'精肉', area:'meat', icon:'🥩', bg:'#fce4ec', tags:['豚肉','肉','豚バラ','カレー','炒め物'], url:'https://shop.entstore.co.jp/f/ec'},
+ {id:'p6', name:'新玉ねぎ 3個入', kana:'たまねぎ', price:158, cat:'青果', area:'produce', icon:'🧅', bg:'#f3e5f5', tags:['玉ねぎ','たまねぎ','野菜','カレー'], url:'https://shop.entstore.co.jp/f/ec'},
+ {id:'p7', name:'じゃがいも（男爵）', kana:'じゃがいも', price:248, cat:'青果', area:'produce', icon:'🥔', bg:'#efebe9', tags:['じゃがいも','野菜','カレー','ポテト'], url:'https://shop.entstore.co.jp/f/ec'},
+ {id:'p8', name:'カレールー（中辛）', kana:'かれー', price:328, cat:'グロサリー', area:'grocery', icon:'🍛', bg:'#fff3e0', tags:['カレー','ルー','調味料'], url:'https://shop.entstore.co.jp/f/ec'},
+ {id:'p9', name:'遠州産 深蒸し茶', kana:'おちゃ', price:980, cat:'飲料', area:'grocery', icon:'🍵', bg:'#e8f5e9', tags:['お茶','緑茶','静岡','茶'], url:'https://shop.entstore.co.jp/f/ec'},
+ {id:'p10', name:'冷やし中華麺 2食入', kana:'ひやしちゅうか', price:298, cat:'日配', area:'daily', icon:'🍜', bg:'#e1f5fe', tags:['麺','冷やし中華','夏','ラーメン'], url:'https://shop.entstore.co.jp/f/ec'}
+];
+
+const RECIPES = [
+ {id:'r1', name:'ふっくら うな重', time:'20分', serve:'2人分', icon:'🍱', bg:'#fff8e1',
+  tags:['うなぎ','鰻','うな重','夏','土用','丼'],
+  ing:[['浜名湖うなぎ 蒲焼','1尾','p1'],['ごはん','2膳',null],['山椒','少々',null],['きざみ海苔','適量',null]],
+  steps:[['🔥','蒲焼を酒少々をふってアルミホイルに包み、トースターで5分温める。'],['🍚','丼にごはんを盛り、たれを軽くかける。'],['🐟','うなぎをのせ、残りのたれ・山椒・海苔をかけて完成。']],
+  link:'https://www.entstore.co.jp/service/recipe/'},
+ {id:'r2', name:'パリパリ浜松餃子', time:'15分', serve:'2人分', icon:'🥟', bg:'#ffebee',
+  tags:['餃子','ぎょうざ','浜松','焼き餃子'],
+  ing:[['浜松餃子 20個入','1袋','p2'],['サラダ油','大さじ1',null],['もやし','1/2袋',null],['お湯','100ml',null]],
+  steps:[['🍳','フライパンに油を熱し、餃子を円形に並べる。'],['💨','お湯を注ぎ、蓋をして中火で7分蒸し焼き。'],['🥬','蓋を取り水分を飛ばし、茹でもやしを中央に添えて完成。']],
+  link:'https://www.entstore.co.jp/service/recipe/'},
+ {id:'r3', name:'夏野菜たっぷりポークカレー', time:'40分', serve:'4人分', icon:'🍛', bg:'#fff3e0',
+  tags:['カレー','夏野菜','豚肉','じゃがいも','玉ねぎ'],
+  ing:[['国産豚バラ肉','300g','p5'],['新玉ねぎ','2個','p6'],['じゃがいも','2個','p7'],['カレールー（中辛）','1/2箱','p8']],
+  steps:[['🔪','野菜と豚肉を食べやすい大きさに切る。'],['🍳','豚肉→玉ねぎ→他の野菜の順に炒める。'],['💧','水600mlを加え15分煮込み、アクを取る。'],['🍛','火を止めてルーを溶かし、とろみが出るまで弱火で煮て完成。']],
+  link:'https://www.entstore.co.jp/service/recipe/'},
+ {id:'r4', name:'ひんやり冷やし中華', time:'15分', serve:'2人分', icon:'🍜', bg:'#e1f5fe',
+  tags:['冷やし中華','麺','夏','さっぱり'],
+  ing:[['冷やし中華麺','2食','p10'],['きゅうり','1本',null],['ハム','4枚',null],['卵','2個',null]],
+  steps:[['🥚','薄焼き卵を作り細切りにする。きゅうり・ハムも細切り。'],['🍜','麺を表示時間通り茹で、冷水でしめる。'],['🥒','具材を彩りよくのせ、たれをかけて完成。']],
+  link:'https://www.entstore.co.jp/service/recipe/'},
+ {id:'r5', name:'メロンまるごとパフェ', time:'10分', serve:'2人分', icon:'🍨', bg:'#e8f5e9',
+  tags:['メロン','デザート','パフェ','フルーツ'],
+  ing:[['クラウンマスクメロン','1/2個','p3'],['バニラアイス','2個',null],['ホイップクリーム','適量',null]],
+  steps:[['🍈','メロンを半分に切り、種を取ってくり抜く。'],['🍨','くり抜いた果肉とアイスを器（メロンの皮）に盛る。'],['🍒','ホイップを飾って完成。']],
+  link:'https://www.entstore.co.jp/service/recipe/'},
+ {id:'r6', name:'豚バラと玉ねぎのスタミナ炒め', time:'15分', serve:'2人分', icon:'🥘', bg:'#fce4ec',
+  tags:['豚肉','玉ねぎ','スタミナ','炒め物','夏バテ'],
+  ing:[['国産豚バラ肉','200g','p5'],['新玉ねぎ','1個','p6'],['にんにく','1片',null],['焼肉のたれ','大さじ3',null]],
+  steps:[['🔪','豚肉は5cm幅、玉ねぎはくし切りにする。'],['🍳','にんにくを香りが出るまで炒め、豚肉→玉ねぎを加える。'],['🥘','たれを絡めて強火でさっと炒めて完成。']],
+  link:'https://www.entstore.co.jp/service/recipe/'}
+];
+
+/* 記事/ブログ（実運用: entstore.co.jp お知らせ・コラム） */
+const ARTICLES = [
+ {id:'a1', name:'土用の丑の日とは？うなぎをおいしく温めるコツ', date:'2026-07-15', icon:'📰', bg:'#e3f2fd',
+  tags:['うなぎ','鰻','土用','夏','コラム'], link:'https://www.entstore.co.jp/'},
+ {id:'a2', name:'浜松餃子の歴史 — 地元で愛される理由', date:'2026-07-08', icon:'📰', bg:'#ffebee',
+  tags:['餃子','浜松','ご当地','コラム'], link:'https://www.entstore.co.jp/'},
+ {id:'a3', name:'夏バテ対策に！栄養士おすすめの食材選び', date:'2026-07-01', icon:'📰', bg:'#e8f5e9',
+  tags:['夏','夏バテ','カレー','豚肉','健康'], link:'https://www.entstore.co.jp/'},
+ {id:'a4', name:'クラウンメロンの食べ頃の見分け方', date:'2026-06-24', icon:'📰', bg:'#fff8e1',
+  tags:['メロン','フルーツ','ギフト','コラム'], link:'https://www.entstore.co.jp/'}
+];
+
+/* 店舗（実運用: entstore.co.jp 店舗情報。住所・営業時間はデモ用サンプル） */
+const STORES = [
+ {id:'s1', name:'上島店', addr:'浜松市中央区上島（デモ住所）', hours:'9:00-21:00', icon:'🏬', bg:'#f3e5f5', tags:['上島','浜松','駐車場']},
+ {id:'s2', name:'市野店', addr:'浜松市中央区市野町（デモ住所）', hours:'9:00-21:00', icon:'🏬', bg:'#e8f5e9', tags:['市野','浜松','駐車場']},
+ {id:'s3', name:'佐鳴台店', addr:'浜松市中央区佐鳴台（デモ住所）', hours:'9:00-21:00', icon:'🏬', bg:'#e1f5fe', tags:['佐鳴台','浜松']},
+ {id:'s4', name:'浜北店', addr:'浜松市浜名区（デモ住所）', hours:'9:00-21:45', icon:'🏬', bg:'#fff3e0', tags:['浜北','浜名区','駐車場']}
+];
+
+/* 特売 = 動的データ（endDateを過ぎると自動除外） */
+let PROMOS = [
+ {id:'k1', title:'土用の丑の日！うなぎ祭り', productId:'p1', salePrice:2980, end:'2026-07-31'},
+ {id:'k2', title:'浜松餃子 週末特価', productId:'p2', salePrice:398, end:'2026-07-26'},
+ {id:'k3', title:'夏のカレーフェア', productId:'p8', salePrice:248, end:'2026-08-10'},
+ {id:'k4', title:'父の日メロンギフト', productId:'p3', salePrice:4980, end:'2026-06-21'} /* ←期限切れデモ */
+];
+
+const SEASON = {name:'夏（7月）', icon:'🌞', productIds:['p1','p10','p3','p4'], recipeIds:['r4','r1'],
+  note:'土用の丑の日（7/30）・夏バテ対策の特集中'};
+
+const AREA = {produce:{label:'青果',color:'#a5d6a7'},fish:{label:'鮮魚',color:'#90caf9'},meat:{label:'精肉',color:'#ef9a9a'},deli:{label:'惣菜',color:'#ffe082'},daily:{label:'日配',color:'#ce93d8'},grocery:{label:'グロサリー',color:'#ffcc80'}};
+
+/* ============ helpers ============ */
+const $=id=>document.getElementById(id);
+const today=()=>new Date().toISOString().slice(0,10);
+function activePromos(){return PROMOS.filter(p=>p.end>=today());}
+function promoOf(pid){return activePromos().find(p=>p.productId===pid);}
+function prod(id){return PRODUCTS.find(p=>p.id===id);}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+let currentHighlights=[];
+
+function show(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  $('view-'+v).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  speechSynthesis.cancel();
+  if(v==='map')drawMap(currentHighlights);
+  if(v==='admin')renderAdmin();
+}
+
+/* ============ cards ============ */
+function productCard(p){
+  const pr=promoOf(p.id);
+  return `<div class="card" onclick="openProduct('${p.id}')">
+    ${pr?`<span class="badge sale">特売 ${pr.end.slice(5).replace('-','/')}まで</span>`:''}
+    <div class="thumb" style="background:${p.bg}">${p.icon}</div>
+    <div class="body"><div class="ttl">${p.name}</div>
+    <div class="meta">${p.cat}売場</div>
+    <div class="price">${pr?`<s>¥${p.price.toLocaleString()}</s>¥${pr.salePrice.toLocaleString()}`:`¥${p.price.toLocaleString()}`}<span style="font-size:10px;color:#888;">（税込）</span></div></div></div>`;
+}
+function recipeCard(r){
+  return `<div class="card" onclick="openRecipe('${r.id}')">
+    <span class="badge">レシピ</span>
+    <div class="thumb" style="background:${r.bg}">${r.icon}</div>
+    <div class="body"><div class="ttl">${r.name}</div>
+    <div class="meta">⏱ ${r.time}・${r.serve}</div>
+    <div>${r.tags.slice(0,3).map(t=>`<span class="tagchip">#${t}</span>`).join('')}</div></div></div>`;
+}
+function articleCard(a){
+  return `<div class="card" onclick="window.open('${a.link}')">
+    <span class="badge" style="background:#1e88e5;">記事</span>
+    <div class="thumb" style="background:${a.bg}">${a.icon}</div>
+    <div class="body"><div class="ttl">${a.name}</div>
+    <div class="meta">📅 ${a.date}</div>
+    <div>${a.tags.slice(0,3).map(t=>`<span class="tagchip">#${t}</span>`).join('')}</div></div></div>`;
+}
+function storeCard(s){
+  return `<div class="card" onclick="show('map')">
+    <span class="badge" style="background:#546e7a;">店舗</span>
+    <div class="thumb" style="background:${s.bg}">${s.icon}</div>
+    <div class="body"><div class="ttl">遠鉄ストア ${s.name}</div>
+    <div class="meta">📍 ${s.addr}<br>🕘 ${s.hours}</div>
+    <div><span class="tagchip">売場マップを見る →</span></div></div></div>`;
+}
+function seasonCard(p){
+  return `<div class="card" onclick="openProduct('${p.id}')">
+    <span class="badge season">${SEASON.icon} 季節</span>
+    <div class="thumb" style="background:${p.bg}">${p.icon}</div>
+    <div class="body"><div class="ttl">${p.name}</div><div class="meta">${SEASON.name}のおすすめ</div></div></div>`;
+}
+
+/* ============ home ============ */
+function renderHome(){
+  $('home-promos').innerHTML=activePromos().map(pr=>productCard(prod(pr.productId))).join('')||'<div class="empty">現在実施中の特売はありません</div>';
+  $('home-recipes').innerHTML=RECIPES.slice(0,3).map(recipeCard).join('');
+  $('home-season').innerHTML=SEASON.productIds.map(id=>seasonCard(prod(id))).join('');
+  $('home-articles').innerHTML=ARTICLES.map(articleCard).join('');
+  $('home-stores').innerHTML=STORES.map(storeCard).join('');
+  $('hotwords').innerHTML='<span>人気ワード:</span>'+['うなぎ','餃子','カレー','メロン','冷やし中華','上島店'].map(w=>`<a onclick="doSearch('${w}')">${w}</a>`).join('');
+}
+
+/* ============ search ============ */
+function doSearch(kw){
+  kw=(kw!==undefined?kw:$('q').value).trim();
+  if(!kw){toast('キーワードを入力してください');return;}
+  $('q').value=kw;
+  const k=kw.toLowerCase();
+  const mp=PRODUCTS.filter(p=>(p.name+p.kana+p.cat+p.tags.join('')).toLowerCase().includes(k));
+  const mr=RECIPES.filter(r=>(r.name+r.tags.join('')+r.ing.map(i=>i[0]).join('')).toLowerCase().includes(k));
+  const mk=activePromos().filter(pr=>(pr.title+prod(pr.productId).name+prod(pr.productId).tags.join('')).toLowerCase().includes(k));
+  const ma=ARTICLES.filter(a=>(a.name+a.tags.join('')).toLowerCase().includes(k));
+  const ms=STORES.filter(s=>('遠鉄ストア'+s.name+s.addr+s.tags.join('')).toLowerCase().includes(k));
+  const isRecipeAll=kw==='レシピ', isSaleAll=kw==='特売', isStoreAll=(kw==='店舗'||kw==='店');
+  const rList=isRecipeAll?RECIPES:mr, pList=isSaleAll?activePromos().map(x=>prod(x.productId)):mp, kList=isSaleAll?activePromos():mk;
+  const aList=ma, sList=isStoreAll?STORES:ms;
+
+  $('r-kw').textContent=kw;
+  $('r-cnt').textContent=`レシピ ${rList.length}件・商品 ${pList.length}件・特売 ${kList.length}件・記事 ${aList.length}件・店舗 ${sList.length}件`;
+
+  /* seasonal strip */
+  const seasonHit=SEASON.productIds.some(id=>pList.find(p=>p.id===id))||rList.some(r=>SEASON.recipeIds.includes(r.id));
+  $('r-season').innerHTML=seasonHit?`<div class="season-strip">${SEASON.icon} <b>${SEASON.name}のおすすめ:</b> ${SEASON.note} — <a onclick="doSearch('夏')">夏の特集を見る</a></div>`:'';
+
+  let html='';
+  if(kList.length){
+    html+=`<div class="groupttl"><span class="ic" style="background:var(--ent-orange)">🔥</span>特売・キャンペーン <small style="color:#999;font-weight:400;">／ Khuyến mãi liên quan</small></div>`;
+    html+=kList.map(pr=>{const p=prod(pr.productId);return `<div class="promo-strip" onclick="openProduct('${p.id}')" style="cursor:pointer;">🔥 <b>${pr.title}</b>：${p.name} が <b>¥${pr.salePrice.toLocaleString()}</b>（通常¥${p.price.toLocaleString()}）<span style="margin-left:auto;font-size:11px;color:#999;">～${pr.end} まで</span></div>`;}).join('');
+  }
+  if(rList.length){
+    html+=`<div class="groupttl"><span class="ic" style="background:var(--ent-red)">🍳</span>関連レシピ <small style="color:#999;font-weight:400;">／ Công thức liên quan</small></div><div class="grid g3">${rList.map(recipeCard).join('')}</div>`;
+  }
+  if(pList.length){
+    html+=`<div class="groupttl"><span class="ic" style="background:var(--ent-green)">🛒</span>関連商品 <small style="color:#999;font-weight:400;">／ Sản phẩm liên quan（ネット通販と連携）</small></div><div class="grid g4">${pList.map(productCard).join('')}</div>`;
+  }
+  if(aList.length){
+    html+=`<div class="groupttl"><span class="ic" style="background:#1e88e5">📰</span>関連記事 <small style="color:#999;font-weight:400;">／ Bài viết liên quan（ブログ・お知らせと連携）</small></div><div class="grid g4">${aList.map(articleCard).join('')}</div>`;
+  }
+  if(sList.length){
+    html+=`<div class="groupttl"><span class="ic" style="background:#546e7a">🏬</span>店舗情報 <small style="color:#999;font-weight:400;">／ Cửa hàng liên quan（店舗名でも検索OK）</small></div><div class="grid g4">${sList.map(storeCard).join('')}</div>`;
+  }
+  if(!html)html=`<div class="empty">「${kw}」に一致する情報が見つかりませんでした。<br>別のキーワード（例：うなぎ、カレー、メロン、上島店）でお試しください。</div>`;
+  $('r-body').innerHTML=html;
+  show('results');
+}
+
+/* ============ recipe detail ============ */
+let currentRecipe=null;
+function openRecipe(id){
+  const r=RECIPES.find(x=>x.id===id);currentRecipe=r;
+  $('recipe-detail').innerHTML=`
+    <div><div class="hero" style="background:${r.bg}">${r.icon}<span class="badge" style="font-size:12px;">レシピ</span></div>
+      <div class="btnrow" style="margin-top:12px;">
+        <button class="btn red" id="readBtn" onclick="readRecipe()">🔊 レシピを読み上げ（AI音声）</button>
+        <button class="btn green" onclick="makeShoppingList()">🛒 買い物リスト作成</button>
+      </div>
+      <a href="${r.link}" target="_blank" class="btn line" style="width:100%;justify-content:center;">📖 公式レシピ集で見る</a>
+    </div>
+    <div>
+      <div class="dttl">${r.name}</div>
+      <div class="dmeta">⏱ 調理時間 ${r.time}｜🍽 ${r.serve}｜${r.tags.slice(0,4).map(t=>`<span class="tagchip">#${t}</span>`).join('')}</div>
+      <div class="subttl">材料 / Nguyên liệu</div>
+      <table class="ing">${r.ing.map(i=>`<tr><td>${i[2]?`<a style="color:var(--ent-red);font-weight:700;cursor:pointer;" onclick="openProduct('${i[2]}')">${i[0]} ${promoOf(i[2])?'🔥特売中':''}</a>`:i[0]}</td><td>${i[1]}</td></tr>`).join('')}</table>
+      <div class="subttl">作り方 / Các bước（画像付きで分かりやすく）</div>
+      <div class="steps">${r.steps.map((s,i)=>`<div class="step"><div class="img">${s[0]}</div><div><span class="no">STEP ${i+1}</span><p>${s[1]}</p></div></div>`).join('')}</div>
+    </div>`;
+  const relIds=r.ing.filter(i=>i[2]).map(i=>i[2]);
+  $('recipe-rel').innerHTML=relIds.map(id=>productCard(prod(id))).join('')||'<div class="empty">関連商品なし</div>';
+  show('recipe');
+}
+
+/* AI read-aloud (Web Speech API) */
+function readRecipe(){
+  const r=currentRecipe;if(!r)return;
+  if(speechSynthesis.speaking){speechSynthesis.cancel();$('readBtn').classList.remove('speaking');$('readBtn').innerHTML='🔊 レシピを読み上げ（AI音声）';return;}
+  const text=`${r.name}。調理時間、${r.time}。材料、${r.serve}。`+r.ing.map(i=>`${i[0]}、${i[1]}。`).join('')+`作り方。`+r.steps.map((s,i)=>`ステップ${i+1}。${s[1]}`).join('');
+  const u=new SpeechSynthesisUtterance(text);u.lang='ja-JP';u.rate=0.95;
+  u.onend=()=>{$('readBtn').classList.remove('speaking');$('readBtn').innerHTML='🔊 レシピを読み上げ（AI音声）';};
+  $('readBtn').classList.add('speaking');$('readBtn').innerHTML='⏹ 停止する（読み上げ中…）';
+  speechSynthesis.speak(u);
+}
+
+/* shopping list */
+function makeShoppingList(){
+  const r=currentRecipe;if(!r)return;
+  currentHighlights=[];
+  $('shoplist').innerHTML=r.ing.map(i=>{
+    const p=i[2]?prod(i[2]):null;
+    if(p&&!currentHighlights.includes(p.area))currentHighlights.push(p.area);
+    const a=p?AREA[p.area]:null;
+    return `<li><span>☐ ${i[0]}　<small style="color:#999;">${i[1]}</small></span>${a?`<span class="loc" style="background:${a.color};color:#333;">${a.label}売場</span>`:'<span class="loc" style="background:#eee;color:#888;">その他</span>'}</li>`;
+  }).join('');
+  $('modal').classList.add('open');
+}
+function closeModal(){$('modal').classList.remove('open');}
+function showMapWithHighlights(){show('map');toast('🗺 買い物リストの売場をハイライトしました');}
+
+/* ============ product detail ============ */
+function openProduct(id){
+  const p=prod(id),pr=promoOf(id);
+  $('product-detail').innerHTML=`
+    <div><div class="hero" style="background:${p.bg}">${p.icon}${pr?'<span class="badge sale" style="font-size:12px;">🔥特売中</span>':''}</div>
+      <div class="btnrow" style="margin-top:12px;">
+        <a class="btn orange" href="${p.url}" target="_blank" style="flex:1;justify-content:center;">🛒 ネット通販で購入</a>
+        <button class="btn green" onclick="currentHighlights=['${p.area}'];show('map');toast('売場をハイライトしました')">🗺 売場を見る</button>
+      </div>
+    </div>
+    <div>
+      <div class="dttl">${p.name}</div>
+      <div class="dmeta">${p.cat}売場｜${p.tags.slice(0,4).map(t=>`<span class="tagchip">#${t}</span>`).join('')}</div>
+      <div class="price" style="font-size:26px;">${pr?`<s>¥${p.price.toLocaleString()}</s> ¥${pr.salePrice.toLocaleString()}`:`¥${p.price.toLocaleString()}`}<span style="font-size:12px;color:#888;">（税込）</span></div>
+      ${pr?`<div class="promo-box"><div class="pt">🔥 ${pr.title}</div><div class="pd">期間限定 ～${pr.end}まで。終了後この表示は自動で消えます（動的データ）。</div></div>`:''}
+      <div class="subttl">商品情報</div>
+      <p style="font-size:13px;line-height:1.9;color:#555;">地元・遠州の逸品。遠鉄ストア各店舗およびネット通販（shop.entstore.co.jp）でお買い求めいただけます。実運用ではECサイトの商品データ（画像・価格・在庫）とAPI連携して表示します。</p>
+    </div>`;
+  const rel=RECIPES.filter(r=>r.ing.some(i=>i[2]===id));
+  $('product-rel').innerHTML=rel.map(recipeCard).join('')||'<div class="empty">関連レシピなし</div>';
+  show('product');
+}
+
+/* ============ floor map (SVG) ============ */
+function drawMap(hl){
+  hl=hl||[];
+  const zones=[
+   {a:'produce',x:20,y:60,w:200,h:150,label:'青果\n🥬🍅🍈'},
+   {a:'fish',x:20,y:230,w:200,h:110,label:'鮮魚\n🐟うなぎ'},
+   {a:'meat',x:20,y:360,w:200,h:100,label:'精肉\n🥩'},
+   {a:'deli',x:250,y:60,w:180,h:110,label:'惣菜・弁当\n🥟🍱'},
+   {a:'daily',x:250,y:190,w:180,h:130,label:'日配・乳製品\n🥛🍜'},
+   {a:'grocery',x:460,y:60,w:190,h:260,label:'グロサリー\n🍛🍵 調味料・菓子'},
+   {a:'checkout',x:250,y:360,w:400,h:100,label:'レジ 🛒　サービスカウンター'},
+  ];
+  const colors={produce:'#a5d6a7',fish:'#90caf9',meat:'#ef9a9a',deli:'#ffe082',daily:'#ce93d8',grocery:'#ffcc80',checkout:'#b0bec5'};
+  let svg=`<rect x="5" y="5" width="890" height="470" rx="14" fill="#fafafa" stroke="#ccc" stroke-width="2"/>
+  <text x="450" y="36" text-anchor="middle" font-size="17" font-weight="bold" fill="#333">遠鉄ストア 標準売場マップ（2026年7月 更新版）</text>
+  <rect x="700" y="60" width="180" height="400" rx="10" fill="#eee"/>
+  <text x="790" y="90" text-anchor="middle" font-size="13" fill="#666">入口 ⬇ / 出口 ⬆</text>
+  <text x="790" y="260" text-anchor="middle" font-size="30">🚶</text>
+  <text x="790" y="300" text-anchor="middle" font-size="11" fill="#888">カート置き場・ATM</text>`;
+  zones.forEach(z=>{
+    const hot=hl.includes(z.a);
+    svg+=`<g><rect x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" rx="10" fill="${hot?'#fff59d':colors[z.a]}" stroke="${hot?'#f39800':'#fff'}" stroke-width="${hot?5:2}"/>`;
+    z.label.split('\n').forEach((ln,i)=>{svg+=`<text x="${z.x+z.w/2}" y="${z.y+z.h/2+(i-0.3)*22}" text-anchor="middle" font-size="${i?13:15}" font-weight="${i?400:700}" fill="#333">${ln}</text>`;});
+    if(hot)svg+=`<text x="${z.x+z.w-18}" y="${z.y+24}" font-size="18">📍</text>`;
+    svg+=`</g>`;
+  });
+  $('floorMap').innerHTML=svg;
+}
+
+/* ============ admin ============ */
+function renderAdmin(){
+  $('ad-product').innerHTML=PRODUCTS.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  if(!$('ad-json').value)$('ad-json').value=JSON.stringify([{title:'例：秋の味覚フェア',productId:'p9',salePrice:780,end:'2026-09-30'}],null,2);
+  const t=today();
+  $('ad-list').innerHTML=PROMOS.map(pr=>{
+    const p=prod(pr.productId),exp=pr.end<t;
+    return `<div class="promoitem ${exp?'expired':''}">${exp?'⛔':'🔥'} <div><b>${pr.title}</b><br><small>${p.name} → ¥${pr.salePrice.toLocaleString()}｜～${pr.end}${exp?'（期限切れ→自動除外済み）':''}</small></div><button class="del" onclick="delPromo('${pr.id}')">削除</button></div>`;
+  }).join('')||'<div class="empty">特売なし</div>';
+}
+let seq=100;
+function addPromoForm(){
+  const pid=$('ad-product').value,ti=$('ad-title').value.trim(),price=+$('ad-price').value,end=$('ad-end').value;
+  if(!ti||!price||!end){toast('すべての項目を入力してください');return;}
+  PROMOS.push({id:'k'+(seq++),title:ti,productId:pid,salePrice:price,end:end});
+  renderAdmin();renderHome();toast('✅ 特売を登録しました（各ページに即時反映）');
+  $('ad-title').value='';$('ad-price').value='';
+}
+function importJson(){
+  try{
+    const arr=JSON.parse($('ad-json').value);
+    (Array.isArray(arr)?arr:[arr]).forEach(o=>{if(o.title&&o.productId&&o.salePrice&&o.end)PROMOS.push({id:'k'+(seq++),...o});});
+    renderAdmin();renderHome();toast('✅ JSONから取込みました');
+  }catch(e){toast('⚠ JSONの形式が正しくありません');}
+}
+function delPromo(id){PROMOS=PROMOS.filter(p=>p.id!==id);renderAdmin();renderHome();toast('🗑 削除しました');}
+
+/* auto-clean expired promos at load (dynamic data) */
+(function(){
+  const t=today();
+  const expired=PROMOS.filter(p=>p.end<t);
+  if(expired.length)console.log(`[動的データ] 期限切れ特売 ${expired.length}件を表示対象から自動除外:`,expired.map(e=>e.title));
+})();
+
+renderHome();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# Ep LF cho moi file nguon.
+# Ly do: script chuyen doi ghi LF vao file dang CRLF -> 67 file bi tron lan,
+# gay "Hydration text mismatch" (server render \n, client cho \r\n) lam trang trang.
+* text=auto eol=lf
+*.png binary
+*.webp binary
+*.gif binary
+*.jpg binary
+*.pdf binary
+*.ttf binary

@@ -1,0 +1,81 @@
+// Site cu duoc @nuxtjs/style-resources tu dong tiem vars/*.scss.
+// Nuxt 4 khong co module do -> import tuong minh tai day.
+// @use thay cho @import (@import bi bo tu Dart Sass 3.0).
+// 'as *' de $primary... dung duoc truc tiep o duoi nhu truoc; hai file kia
+// khong dung bien nao cua vars/color nen khong can khai bao them.
+@use 'vars/color' as *;
+// @use 'vendor/vuetify';
+@use 'vuetify-compat';   // thay Vuetify 2 (xem ghi chu trong file)
+@use 'common/index';
+
+html {
+  font-size: 14px !important;
+}
+
+@font-face {
+  font-family: 'NotoSans';
+  src: url('./font/NoToSansJp/NotoSansJP-Thin.ttf');
+  font-weight: 100;
+}
+@font-face {
+  font-family: 'NotoSans';
+  src: url('./font/NoToSansJp/NotoSansJP-ExtraLight.ttf');
+  font-weight: 200;
+}
+@font-face {
+  font-family: 'NotoSans';
+  src: url('./font/NoToSansJp/NotoSansJP-Light.ttf');
+  font-weight: 300;
+}
+@font-face {
+  font-family: 'NotoSans';
+  src: url('./font/NoToSansJp/NotoSansJP-Regular.ttf');
+}
+@font-face {
+  font-family: 'NotoSans';
+  src: url('./font/NoToSansJp/NotoSansJP-Medium.ttf');
+  font-weight: 500;
+}
+@font-face {
+  font-family: 'NotoSans';
+  src: url('./font/NoToSansJp/NotoSansJP-SemiBold.ttf');
+  font-weight: 600;
+}
+@font-face {
+  font-family: 'NotoSans';
+  src: url('./font/NoToSansJp/NotoSansJP-Bold.ttf');
+  font-weight: 700;
+}
+@font-face {
+  font-family: 'NotoSans';
+  src: url('./font/NoToSansJp/NotoSansJP-ExtraBold.ttf');
+  font-weight: 800;
+}
+@font-face {
+  font-family: 'NotoSans';
+  src: url('./font/NoToSansJp/NotoSansJP-Black.ttf');
+  font-weight: 900;
+}
+.v-application {
+  font-family: "Hiragino Kaku Gothic ProN", "メイリオ", "Meiryo", "ＭＳ Ｐゴシック", "MS PGothic", sans-serif !important;
+  color: #323232;
+}
+
+.text-primary {
+  color: $primary !important;
+}
+.text-primary-2 {
+  color: $primary_2 !important;
+}
+.bg-primary-2 {
+  background-color: $primary_2 !important;
+}
+.text-warning {
+  color: $warning !important;
+}
+.text-white {
+  color: #fff !important;
+}
+.v-stepper:not(.v-stepper--vertical) .v-stepper__label {
+  display: block !important;
+}

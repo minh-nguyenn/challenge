@@ -1,0 +1,621 @@
+// ============================================================================
+// Vuetify compat shim — thay the Vuetify 2 bang CSS thuan.
+//
+// CACH DO (khong doan): scripts/measure-vuetify-css.mjs mo trang GOC bang
+// Chrome that, duyet toan bo CSSOM roi hoi document.querySelector() xem rule
+// nao THUC SU khop phan tu dang co tren trang.
+//
+//   Trang goc tai ve : 4.316 rule co selector Vuetify
+//   Thuc su khop DOM :    49 rule  (= 4,5KB)  <- chi can tai tao chung nay
+//   Rule chet        : 4.267 rule  (98,9% la thua)
+//
+// File nay chep lai dung 49 rule do, giu nguyen ten class .v-* de cac khoi
+// <style> trong 61 file .vue goc (vd .v-breadcrumbs li:nth-child(even)) van
+// bam dung, khong phai sua mot dong style nao cua site cu.
+// ============================================================================
+
+// ---- reset cua Vuetify (vuetify/src/styles/generic/_reset.scss) -----------
+// Vuetify nap ban reset kieu normalize, trong do co body{margin:0}.
+// Bo Vuetify ma quen phan nay -> body giu margin:8px mac dinh cua trinh duyet,
+// lam MOI phan tu full-width le 8px (do duoc: #pageHeader x=8 thay vi 0,
+// rong 1264 thay vi 1280) va lech tam .wrap-content 142px thay vi 150px.
+// Vuetify dat border-box cho MOI phan tu. Thieu no thi cac phan tu vua
+// width:100% vua co padding ngang se tran ra ngoai: do duoc o mobile 375px
+// -> .v-breadcrumbs rong 395px, h2 rong 399px, scrollWidth 387 thay vi 375.
+*,
+:after,
+:before {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  word-break: normal;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+}
+
+// Vuetify reset dat select{appearance:none}. Thieu no thi <select> cua trang
+// レシピ検索 hien HAI mui ten (mot cua trinh duyet, mot la anh nen arrow_select).
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+// Vuetify reset bo margin mac dinh cua cac the block.
+// Phai co ca ul/ol/li: thieu chung thi <ul> giu margin 14px tren+duoi mac dinh
+// cua trinh duyet — do duoc o .defoltBnr: cao 151px thay vi 123px (+28 = 14x2).
+blockquote,
+dd,
+dl,
+figure,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+pre,
+ul,
+ol,
+fieldset {
+  margin: 0;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+
+// ---- .v-application: khung ngoai cung ------------------------------------
+.v-application {
+  display: flex;
+  position: relative;
+  font-family: Roboto, sans-serif;
+  line-height: 1.5;
+  color: #323232 !important;
+  font-family: 'Hiragino Kaku Gothic ProN', 'メイリオ', 'Meiryo', 'ＭＳ Ｐゴシック',
+    'MS PGothic', sans-serif !important;
+
+  ol,
+  ul {
+    padding-left: 24px;
+  }
+
+  ul {
+    padding-left: 0 !important;
+  }
+
+  p {
+    margin-bottom: 16px;
+  }
+
+  a {
+    cursor: pointer;
+    // Vuetify theme dat #009eee, nhung rule cuoi cung thang la #087295
+    color: #087295;
+  }
+
+  .text-center {
+    text-align: center !important;
+  }
+}
+
+.theme--light.v-application {
+  background: #fff;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.v-application--wrap {
+  backface-visibility: hidden;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  max-width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+// ---- .v-breadcrumbs: 57/67 lan dung Vuetify nam o day --------------------
+.v-breadcrumbs {
+  align-items: center;
+  display: flex !important;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  list-style-type: none !important;
+  margin: 0;
+  padding: 18px 12px;
+
+  li {
+    align-items: center;
+    display: inline-flex;
+    font-size: 14px;
+
+    &:nth-child(2n) {
+      padding: 0 12px;
+    }
+  }
+}
+
+.v-breadcrumbs__item {
+  align-items: center;
+  display: inline-flex;
+  text-decoration: none;
+  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+  font-size: 14px;
+}
+
+.v-breadcrumbs__item--disabled {
+  // Vuetify dat none, nhung _index.scss cua site ghi de thanh all
+  pointer-events: all !important;
+}
+
+.theme--light.v-breadcrumbs {
+  .v-breadcrumbs__divider,
+  .v-breadcrumbs__item--disabled {
+    color: rgba(0, 0, 0, 0.38);
+  }
+}
+
+// ---- .v-navigation-drawer: menu truot mobile -----------------------------
+.v-navigation-drawer {
+  display: flex;
+  flex-direction: column;
+  left: 0;
+  max-width: 100%;
+  overflow: hidden;
+  pointer-events: auto;
+  top: 0;
+  transition-duration: 0.2s;
+  transition-property: transform, visibility, width;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-overflow-scrolling: touch;
+
+  &:not([data-booted='true']) {
+    transition: none !important;
+  }
+
+  &.v-navigation-drawer--right::after {
+    left: 0;
+    right: auto;
+  }
+}
+
+.theme--light.v-navigation-drawer {
+  background-color: #fff;
+
+  &:not(.v-navigation-drawer--floating) .v-navigation-drawer__border {
+    background-color: rgba(0, 0, 0, 0.12);
+  }
+}
+
+.v-navigation-drawer__border {
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 1px;
+}
+
+.v-navigation-drawer__content {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.v-navigation-drawer--right {
+  left: auto;
+  right: 0;
+
+  > .v-navigation-drawer__border {
+    left: 0;
+    right: auto;
+  }
+}
+
+.v-navigation-drawer--fixed {
+  position: fixed;
+  z-index: 6;
+}
+
+.v-navigation-drawer--temporary {
+  z-index: 7;
+}
+
+.v-navigation-drawer--close {
+  visibility: hidden;
+}
+
+.v-navigation-drawer--is-mobile:not(.v-navigation-drawer--close),
+.v-navigation-drawer--temporary:not(.v-navigation-drawer--close) {
+  box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2), 0 16px 24px 2px rgba(0, 0, 0, 0.14),
+    0 6px 30px 5px rgba(0, 0, 0, 0.12);
+  // Vuetify tinh theo width prop (400px) tru scrim
+  width: calc(100vw - 76px) !important;
+}
+
+// Lop phu mo phia sau drawer (Vuetify goi la v-overlay)
+.v-overlay-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(33, 33, 33, 0.46);
+  z-index: 6;
+}
+
+// ---- .v-pagination: dung 1 lan (blog/index.vue) --------------------------
+// Do bang Chrome tren trang goc /blog/: .v-pagination la inline-flex, moi <li>
+// la flex. Thieu 2 rule nay thi phan trang xep doc, cao 540px thay vi 68px.
+.v-pagination {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  justify-content: center;
+  list-style-type: none;
+  margin: 0;
+  max-width: 100%;
+  width: 100%;
+  padding-left: 0;
+
+  > li {
+    align-items: center;
+    display: flex;
+  }
+}
+
+.v-pagination__item {
+  background: transparent;
+  border-radius: 4px;
+  font-size: 1rem;
+  height: 34px;
+  margin: 0.3rem;
+  min-width: 34px;
+  padding: 0 5px;
+  text-decoration: none;
+  transition: 0.3s cubic-bezier(0, 0, 0.2, 1);
+  width: auto;
+}
+
+.v-pagination__navigation {
+  align-items: center;
+  border-radius: 4px;
+  display: inline-flex;
+  height: 32px;
+  justify-content: center;
+  margin: 0.3rem 10px;
+  text-decoration: none;
+  width: 32px;
+}
+
+.v-pagination__navigation--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.theme--light.v-pagination {
+  .v-pagination__item {
+    background: #fff;
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  .v-pagination__item--active {
+    color: #fff;
+  }
+
+  .v-pagination__navigation {
+    background: #fff;
+  }
+}
+
+// Mui ten trai/phai cua Vuetify ve bang font mdi. Khong nap font do nen ve
+// bang CSS de khong phai tai them tai nguyen.
+.v-icon.mdi-chevron-left::before,
+.v-icon.mdi-chevron-right::before {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+}
+
+.v-icon.mdi-chevron-left::before {
+  transform: rotate(-135deg);
+  margin-left: 3px;
+}
+
+.v-icon.mdi-chevron-right::before {
+  transform: rotate(45deg);
+  margin-right: 3px;
+}
+
+.v-icon {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  line-height: 1;
+}
+
+
+// ---- Lop tien ich cua Vuetify ----------------------------------------
+// Site goc dung 232 lan d-none, 19 lan mb-0, ... Cac lop nay den tu Vuetify
+// nen bo Vuetify la mat. Sinh lai theo dung thang do cua Vuetify: 4px moi buoc.
+
+.d-none { display: none !important; }
+.d-block { display: block !important; }
+.d-inline { display: inline !important; }
+.d-inline-block { display: inline-block !important; }
+.d-flex { display: flex !important; }
+.d-inline-flex { display: inline-flex !important; }
+
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+.text-center { text-align: center !important; }
+.text-justify { text-align: justify !important; }
+
+.flex-row { flex-direction: row !important; }
+.flex-column { flex-direction: column !important; }
+.flex-wrap { flex-wrap: wrap !important; }
+.flex-grow-1 { flex-grow: 1 !important; }
+.justify-start { justify-content: flex-start !important; }
+.justify-end { justify-content: flex-end !important; }
+.justify-center { justify-content: center !important; }
+.justify-space-between { justify-content: space-between !important; }
+.justify-space-around { justify-content: space-around !important; }
+.align-start { align-items: flex-start !important; }
+.align-end { align-items: flex-end !important; }
+.align-center { align-items: center !important; }
+.align-baseline { align-items: baseline !important; }
+.align-stretch { align-items: stretch !important; }
+
+.ma-0 { margin: 0px !important; }
+.ma-1 { margin: 4px !important; }
+.ma-2 { margin: 8px !important; }
+.ma-3 { margin: 12px !important; }
+.ma-4 { margin: 16px !important; }
+.ma-5 { margin: 20px !important; }
+.ma-6 { margin: 24px !important; }
+.ma-7 { margin: 28px !important; }
+.ma-8 { margin: 32px !important; }
+.ma-9 { margin: 36px !important; }
+.ma-10 { margin: 40px !important; }
+.ma-11 { margin: 44px !important; }
+.ma-12 { margin: 48px !important; }
+.ma-13 { margin: 52px !important; }
+.ma-14 { margin: 56px !important; }
+.ma-15 { margin: 60px !important; }
+.ma-16 { margin: 64px !important; }
+.ma-auto { margin: auto !important; }
+.mt-0 { margin-top: 0px !important; }
+.mt-1 { margin-top: 4px !important; }
+.mt-2 { margin-top: 8px !important; }
+.mt-3 { margin-top: 12px !important; }
+.mt-4 { margin-top: 16px !important; }
+.mt-5 { margin-top: 20px !important; }
+.mt-6 { margin-top: 24px !important; }
+.mt-7 { margin-top: 28px !important; }
+.mt-8 { margin-top: 32px !important; }
+.mt-9 { margin-top: 36px !important; }
+.mt-10 { margin-top: 40px !important; }
+.mt-11 { margin-top: 44px !important; }
+.mt-12 { margin-top: 48px !important; }
+.mt-13 { margin-top: 52px !important; }
+.mt-14 { margin-top: 56px !important; }
+.mt-15 { margin-top: 60px !important; }
+.mt-16 { margin-top: 64px !important; }
+.mt-auto { margin-top: auto !important; }
+.mb-0 { margin-bottom: 0px !important; }
+.mb-1 { margin-bottom: 4px !important; }
+.mb-2 { margin-bottom: 8px !important; }
+.mb-3 { margin-bottom: 12px !important; }
+.mb-4 { margin-bottom: 16px !important; }
+.mb-5 { margin-bottom: 20px !important; }
+.mb-6 { margin-bottom: 24px !important; }
+.mb-7 { margin-bottom: 28px !important; }
+.mb-8 { margin-bottom: 32px !important; }
+.mb-9 { margin-bottom: 36px !important; }
+.mb-10 { margin-bottom: 40px !important; }
+.mb-11 { margin-bottom: 44px !important; }
+.mb-12 { margin-bottom: 48px !important; }
+.mb-13 { margin-bottom: 52px !important; }
+.mb-14 { margin-bottom: 56px !important; }
+.mb-15 { margin-bottom: 60px !important; }
+.mb-16 { margin-bottom: 64px !important; }
+.mb-auto { margin-bottom: auto !important; }
+.ml-0 { margin-left: 0px !important; }
+.ml-1 { margin-left: 4px !important; }
+.ml-2 { margin-left: 8px !important; }
+.ml-3 { margin-left: 12px !important; }
+.ml-4 { margin-left: 16px !important; }
+.ml-5 { margin-left: 20px !important; }
+.ml-6 { margin-left: 24px !important; }
+.ml-7 { margin-left: 28px !important; }
+.ml-8 { margin-left: 32px !important; }
+.ml-9 { margin-left: 36px !important; }
+.ml-10 { margin-left: 40px !important; }
+.ml-11 { margin-left: 44px !important; }
+.ml-12 { margin-left: 48px !important; }
+.ml-13 { margin-left: 52px !important; }
+.ml-14 { margin-left: 56px !important; }
+.ml-15 { margin-left: 60px !important; }
+.ml-16 { margin-left: 64px !important; }
+.ml-auto { margin-left: auto !important; }
+.mr-0 { margin-right: 0px !important; }
+.mr-1 { margin-right: 4px !important; }
+.mr-2 { margin-right: 8px !important; }
+.mr-3 { margin-right: 12px !important; }
+.mr-4 { margin-right: 16px !important; }
+.mr-5 { margin-right: 20px !important; }
+.mr-6 { margin-right: 24px !important; }
+.mr-7 { margin-right: 28px !important; }
+.mr-8 { margin-right: 32px !important; }
+.mr-9 { margin-right: 36px !important; }
+.mr-10 { margin-right: 40px !important; }
+.mr-11 { margin-right: 44px !important; }
+.mr-12 { margin-right: 48px !important; }
+.mr-13 { margin-right: 52px !important; }
+.mr-14 { margin-right: 56px !important; }
+.mr-15 { margin-right: 60px !important; }
+.mr-16 { margin-right: 64px !important; }
+.mr-auto { margin-right: auto !important; }
+.mx-0 { margin-left: 0px !important; margin-right: 0px !important; }
+.mx-1 { margin-left: 4px !important; margin-right: 4px !important; }
+.mx-2 { margin-left: 8px !important; margin-right: 8px !important; }
+.mx-3 { margin-left: 12px !important; margin-right: 12px !important; }
+.mx-4 { margin-left: 16px !important; margin-right: 16px !important; }
+.mx-5 { margin-left: 20px !important; margin-right: 20px !important; }
+.mx-6 { margin-left: 24px !important; margin-right: 24px !important; }
+.mx-7 { margin-left: 28px !important; margin-right: 28px !important; }
+.mx-8 { margin-left: 32px !important; margin-right: 32px !important; }
+.mx-9 { margin-left: 36px !important; margin-right: 36px !important; }
+.mx-10 { margin-left: 40px !important; margin-right: 40px !important; }
+.mx-11 { margin-left: 44px !important; margin-right: 44px !important; }
+.mx-12 { margin-left: 48px !important; margin-right: 48px !important; }
+.mx-13 { margin-left: 52px !important; margin-right: 52px !important; }
+.mx-14 { margin-left: 56px !important; margin-right: 56px !important; }
+.mx-15 { margin-left: 60px !important; margin-right: 60px !important; }
+.mx-16 { margin-left: 64px !important; margin-right: 64px !important; }
+.mx-auto { margin-left: auto !important; margin-right: auto !important; }
+.my-0 { margin-top: 0px !important; margin-bottom: 0px !important; }
+.my-1 { margin-top: 4px !important; margin-bottom: 4px !important; }
+.my-2 { margin-top: 8px !important; margin-bottom: 8px !important; }
+.my-3 { margin-top: 12px !important; margin-bottom: 12px !important; }
+.my-4 { margin-top: 16px !important; margin-bottom: 16px !important; }
+.my-5 { margin-top: 20px !important; margin-bottom: 20px !important; }
+.my-6 { margin-top: 24px !important; margin-bottom: 24px !important; }
+.my-7 { margin-top: 28px !important; margin-bottom: 28px !important; }
+.my-8 { margin-top: 32px !important; margin-bottom: 32px !important; }
+.my-9 { margin-top: 36px !important; margin-bottom: 36px !important; }
+.my-10 { margin-top: 40px !important; margin-bottom: 40px !important; }
+.my-11 { margin-top: 44px !important; margin-bottom: 44px !important; }
+.my-12 { margin-top: 48px !important; margin-bottom: 48px !important; }
+.my-13 { margin-top: 52px !important; margin-bottom: 52px !important; }
+.my-14 { margin-top: 56px !important; margin-bottom: 56px !important; }
+.my-15 { margin-top: 60px !important; margin-bottom: 60px !important; }
+.my-16 { margin-top: 64px !important; margin-bottom: 64px !important; }
+.my-auto { margin-top: auto !important; margin-bottom: auto !important; }
+.pa-0 { padding: 0px !important; }
+.pa-1 { padding: 4px !important; }
+.pa-2 { padding: 8px !important; }
+.pa-3 { padding: 12px !important; }
+.pa-4 { padding: 16px !important; }
+.pa-5 { padding: 20px !important; }
+.pa-6 { padding: 24px !important; }
+.pa-7 { padding: 28px !important; }
+.pa-8 { padding: 32px !important; }
+.pa-9 { padding: 36px !important; }
+.pa-10 { padding: 40px !important; }
+.pa-11 { padding: 44px !important; }
+.pa-12 { padding: 48px !important; }
+.pa-13 { padding: 52px !important; }
+.pa-14 { padding: 56px !important; }
+.pa-15 { padding: 60px !important; }
+.pa-16 { padding: 64px !important; }
+.pt-0 { padding-top: 0px !important; }
+.pt-1 { padding-top: 4px !important; }
+.pt-2 { padding-top: 8px !important; }
+.pt-3 { padding-top: 12px !important; }
+.pt-4 { padding-top: 16px !important; }
+.pt-5 { padding-top: 20px !important; }
+.pt-6 { padding-top: 24px !important; }
+.pt-7 { padding-top: 28px !important; }
+.pt-8 { padding-top: 32px !important; }
+.pt-9 { padding-top: 36px !important; }
+.pt-10 { padding-top: 40px !important; }
+.pt-11 { padding-top: 44px !important; }
+.pt-12 { padding-top: 48px !important; }
+.pt-13 { padding-top: 52px !important; }
+.pt-14 { padding-top: 56px !important; }
+.pt-15 { padding-top: 60px !important; }
+.pt-16 { padding-top: 64px !important; }
+.pb-0 { padding-bottom: 0px !important; }
+.pb-1 { padding-bottom: 4px !important; }
+.pb-2 { padding-bottom: 8px !important; }
+.pb-3 { padding-bottom: 12px !important; }
+.pb-4 { padding-bottom: 16px !important; }
+.pb-5 { padding-bottom: 20px !important; }
+.pb-6 { padding-bottom: 24px !important; }
+.pb-7 { padding-bottom: 28px !important; }
+.pb-8 { padding-bottom: 32px !important; }
+.pb-9 { padding-bottom: 36px !important; }
+.pb-10 { padding-bottom: 40px !important; }
+.pb-11 { padding-bottom: 44px !important; }
+.pb-12 { padding-bottom: 48px !important; }
+.pb-13 { padding-bottom: 52px !important; }
+.pb-14 { padding-bottom: 56px !important; }
+.pb-15 { padding-bottom: 60px !important; }
+.pb-16 { padding-bottom: 64px !important; }
+.pl-0 { padding-left: 0px !important; }
+.pl-1 { padding-left: 4px !important; }
+.pl-2 { padding-left: 8px !important; }
+.pl-3 { padding-left: 12px !important; }
+.pl-4 { padding-left: 16px !important; }
+.pl-5 { padding-left: 20px !important; }
+.pl-6 { padding-left: 24px !important; }
+.pl-7 { padding-left: 28px !important; }
+.pl-8 { padding-left: 32px !important; }
+.pl-9 { padding-left: 36px !important; }
+.pl-10 { padding-left: 40px !important; }
+.pl-11 { padding-left: 44px !important; }
+.pl-12 { padding-left: 48px !important; }
+.pl-13 { padding-left: 52px !important; }
+.pl-14 { padding-left: 56px !important; }
+.pl-15 { padding-left: 60px !important; }
+.pl-16 { padding-left: 64px !important; }
+.pr-0 { padding-right: 0px !important; }
+.pr-1 { padding-right: 4px !important; }
+.pr-2 { padding-right: 8px !important; }
+.pr-3 { padding-right: 12px !important; }
+.pr-4 { padding-right: 16px !important; }
+.pr-5 { padding-right: 20px !important; }
+.pr-6 { padding-right: 24px !important; }
+.pr-7 { padding-right: 28px !important; }
+.pr-8 { padding-right: 32px !important; }
+.pr-9 { padding-right: 36px !important; }
+.pr-10 { padding-right: 40px !important; }
+.pr-11 { padding-right: 44px !important; }
+.pr-12 { padding-right: 48px !important; }
+.pr-13 { padding-right: 52px !important; }
+.pr-14 { padding-right: 56px !important; }
+.pr-15 { padding-right: 60px !important; }
+.pr-16 { padding-right: 64px !important; }
+.px-0 { padding-left: 0px !important; padding-right: 0px !important; }
+.px-1 { padding-left: 4px !important; padding-right: 4px !important; }
+.px-2 { padding-left: 8px !important; padding-right: 8px !important; }
+.px-3 { padding-left: 12px !important; padding-right: 12px !important; }
+.px-4 { padding-left: 16px !important; padding-right: 16px !important; }
+.px-5 { padding-left: 20px !important; padding-right: 20px !important; }
+.px-6 { padding-left: 24px !important; padding-right: 24px !important; }
+.px-7 { padding-left: 28px !important; padding-right: 28px !important; }
+.px-8 { padding-left: 32px !important; padding-right: 32px !important; }
+.px-9 { padding-left: 36px !important; padding-right: 36px !important; }
+.px-10 { padding-left: 40px !important; padding-right: 40px !important; }
+.px-11 { padding-left: 44px !important; padding-right: 44px !important; }
+.px-12 { padding-left: 48px !important; padding-right: 48px !important; }
+.px-13 { padding-left: 52px !important; padding-right: 52px !important; }
+.px-14 { padding-left: 56px !important; padding-right: 56px !important; }
+.px-15 { padding-left: 60px !important; padding-right: 60px !important; }
+.px-16 { padding-left: 64px !important; padding-right: 64px !important; }
+.py-0 { padding-top: 0px !important; padding-bottom: 0px !important; }
+.py-1 { padding-top: 4px !important; padding-bottom: 4px !important; }
+.py-2 { padding-top: 8px !important; padding-bottom: 8px !important; }
+.py-3 { padding-top: 12px !important; padding-bottom: 12px !important; }
+.py-4 { padding-top: 16px !important; padding-bottom: 16px !important; }
+.py-5 { padding-top: 20px !important; padding-bottom: 20px !important; }
+.py-6 { padding-top: 24px !important; padding-bottom: 24px !important; }
+.py-7 { padding-top: 28px !important; padding-bottom: 28px !important; }
+.py-8 { padding-top: 32px !important; padding-bottom: 32px !important; }
+.py-9 { padding-top: 36px !important; padding-bottom: 36px !important; }
+.py-10 { padding-top: 40px !important; padding-bottom: 40px !important; }
+.py-11 { padding-top: 44px !important; padding-bottom: 44px !important; }
+.py-12 { padding-top: 48px !important; padding-bottom: 48px !important; }
+.py-13 { padding-top: 52px !important; padding-bottom: 52px !important; }
+.py-14 { padding-top: 56px !important; padding-bottom: 56px !important; }
+.py-15 { padding-top: 60px !important; padding-bottom: 60px !important; }
+.py-16 { padding-top: 64px !important; padding-bottom: 64px !important; }
