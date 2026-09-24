@@ -3,13 +3,19 @@ import { normalizeJa, bigrams } from './jp-text.mjs'
 /**
  * Bộ máy tìm kiếm cục bộ — chấm điểm và nhóm kết quả.
  *
- * Theo slide 5 của đề xuất: kết quả xếp theo nhóm
- *   特売 → レシピ → 商品 → 記事 → 店舗
+ * Kết quả xếp theo nhóm
+ *   レシピ → 特売 → 商品 → 記事 → 店舗
  * kèm số lượng từng nhóm.
  */
 
-/** Thứ tự nhóm hiển thị — bám đúng slide 5 của proposal */
-export const GROUP_ORDER = ['promo', 'recipe', 'product', 'article', 'shop', 'page', 'feature'];
+/**
+ * Thứ tự nhóm hiển thị.
+ *
+ * レシピ đứng trước 特売: phần lớn câu người dùng gõ là tên món hoặc nguyên
+ * liệu, nên công thức mới là thứ họ tìm; khuyến mãi là thông tin đi kèm.
+ * (Proposal ban đầu xếp 特売 lên đầu — đã đổi theo yêu cầu.)
+ */
+export const GROUP_ORDER = ['recipe', 'promo', 'product', 'article', 'shop', 'page', 'feature'];
 
 export const GROUP_LABEL = {
   promo: '特売',
@@ -223,6 +229,34 @@ export function search(docs, query, opts = {}) {
 function stripHeavy(d) {
   const { norm, normTitle, text, ...rest } = d;
   return { ...rest, snippet: (text || '').slice(0, 120) }
+}
+
+/**
+ * Phần chữ còn lại sau khi tách điều kiện — có phải TỪ KHOÁ THẬT không?
+ *
+ * Dùng cho câu kiểu 「2000円で何を食べますか」: sau khi tách "2000円" ra, còn
+ * 「食べますか」 — chữ này không phải thứ người dùng muốn tìm.
+ *
+ * Cách nhận biết: từ khoá thật thì xuất hiện trong TÊN của ít nhất một tài
+ * liệu; từ thừa thì không. Đã đo trên index thật:
+ *
+ *     食べますか → 0 tên    ランチ → 16 tên
+ *     何食べよう → 0 tên    カレー → 31 tên
+ *     作れる     → 0 tên    うなぎ → 13 tên
+ *
+ * Làm theo cách này thì không phải liệt kê tay từng cách hỏi mới — cách hỏi
+ * nào lạ đến đâu cũng tự rơi vào đúng nhóm.
+ */
+export function looksLikeKeyword(docs, term, extraTerms = []) {
+  for (const c of [term, ...extraTerms]) {
+    if (!c) continue
+    const n = normalizeJa(c)
+    if (n.length < 2) continue
+    for (const d of docs) {
+      if ((d.normTitle || '').includes(n)) return true
+    }
+  }
+  return false
 }
 
 /**

@@ -6,7 +6,9 @@
  * Sơ đồ vẽ bằng SVG nên co giãn theo màn hình, không cần file ảnh.
  */
 import { computed, watch, onBeforeUnmount } from 'vue'
+import { useRoute } from 'vue-router'
 import { URIBA } from '~~/shared/uriba.mjs'
+import { useShoppingList } from '~/composables/useShoppingList'
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -34,6 +36,15 @@ const LAYOUT = {
 }
 
 const isOn = (key) => props.highlight.includes(key)
+
+/**
+ * Sau khi bấm 「お店で買う」 ở trang công thức, modal này mở ra — nhưng trước
+ * đây từ đây không có lối nào đi tiếp sang 買い物リスト, phải tự để ý link
+ * trên thanh tìm kiếm. Nên thêm luôn nút đi tới danh sách (trừ khi đang ở đó).
+ */
+const { count: listCount } = useShoppingList()
+const route = useRoute()
+const onListPage = computed(() => route.path === '/list')
 
 const shown = computed(() =>
   URIBA.filter((u) => LAYOUT[u.key]).map((u) => ({ ...u, box: LAYOUT[u.key], on: isOn(u.key) }))
@@ -131,6 +142,18 @@ onBeforeUnmount(() => {
             </li>
           </ul>
         </div>
+
+        <!-- Lối đi tiếp: xem chính danh sách vừa thêm -->
+        <ClientOnly>
+          <footer v-if="!onListPage" class="um-foot">
+            <p class="um-foot-count">
+              買い物リスト：<strong>{{ listCount }}</strong> 品
+            </p>
+            <NuxtLink to="/list" class="um-foot-go" @click="close">
+              📝 買い物リストを見る
+            </NuxtLink>
+          </footer>
+        </ClientOnly>
       </div>
     </div>
   </Teleport>
@@ -188,6 +211,44 @@ onBeforeUnmount(() => {
 
 .um-body {
   padding: 16px;
+}
+
+.um-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  border-top: 1px solid #eee;
+  background: #faf7f1;
+  border-radius: 0 0 8px 8px;
+}
+
+.um-foot-count {
+  margin: 0;
+  font-size: 13px;
+  color: #6b5a48;
+
+  strong {
+    font-size: 16px;
+    color: #331e0e;
+  }
+}
+
+.um-foot-go {
+  display: inline-block;
+  padding: 9px 18px;
+  border-radius: 4px;
+  background: #c7273b;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+
+  &:hover {
+    background: #a81f30;
+  }
 }
 
 .um-note {

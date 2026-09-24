@@ -4,7 +4,19 @@ import { search } from '~~/shared/search-engine.mjs'
 import { normalizeJa } from '~~/shared/jp-text.mjs'
 import { toJapaneseKeywords } from '~~/shared/chat-lang.mjs'
 import { detectBudget, stripBudget } from '~~/shared/budget.mjs'
-import { GROUP_LABEL, GROUP_ORDER } from '~~/shared/search-engine.mjs'
+import { GROUP_LABEL, GROUP_ORDER, looksLikeKeyword } from '~~/shared/search-engine.mjs'
+
+/**
+ * Nhom duoc hien tren TRANG KET QUA tim kiem.
+ *
+ * Co y bo 'page' (43 trang tinh: gioi thieu cong ty, FAQ, chinh sach…) va
+ * 'feature' (5 bai gioi thieu chinh cac tinh nang moi). Khach go 「うなぎ」 thi
+ * muon thay khuyen mai va cong thuc, khong phai trang gioi thieu cong ty.
+ *
+ * Hai nhom nay VAN nam trong chi muc va van duoc chatbot dung — nho chung ma
+ * bot tra loi duoc 「このサイトで何ができますか」 hay cau hoi ve the thanh toan.
+ */
+const SEARCH_GROUPS = ['promo', 'recipe', 'product', 'article', 'shop']
 
 export default defineEventHandler((event) => {
   const query = getQuery(event)
@@ -65,16 +77,22 @@ export default defineEventHandler((event) => {
   const { rest, generic } = budget ? stripBudget(q, budget) : { rest: q, generic: false }
   const termForSearch = budget ? rest : q
 
+  // Danh sách từ thừa viết tay không bao giờ phủ hết mọi cách hỏi
+  // (「2000円で何を食べますか」 còn sót 「食べますか」). Kiểm thêm: phần còn lại
+  // có khớp TÊN tài liệu nào không — không khớp thì coi như không có từ khoá.
+  const noKeyword =
+    generic || !looksLikeKeyword(all, rest, toJapaneseKeywords(rest))
+
   let budgetInfo: any = null
   let result: any
 
-  if (budget && generic) {
+  if (budget && noKeyword) {
     // Khong con tu khoa nao -> nguoi dung hoi "nau duoc gi voi ngan sach nay".
     // Duyet toan bo cong thuc + san pham theo gia, thay vi tim theo chu.
     result = browseByBudget(all, budget, costById, perGroup)
     budgetInfo = { ...budget, mode: 'browse', removed: 0, note: BUDGET_NOTE }
   } else {
-    result = search(all, termForSearch, { perGroup })
+    result = search(all, termForSearch, { perGroup, types: SEARCH_GROUPS })
 
     // 2. NGOAI NGU — trang va du lieu deu tieng Nhat, nhung nguoi dung co the go
     // "cà ri" / "curry" / "咖喱". Truoc day /api/search khong dich nen ra 0 ket qua
@@ -83,7 +101,7 @@ export default defineEventHandler((event) => {
       (w: string) => w && !termForSearch.includes(w)
     )
     for (const w of jaWords) {
-      const extra = search(all, w, { perGroup })
+      const extra = search(all, w, { perGroup, types: SEARCH_GROUPS })
       if (!extra.total) continue
       translatedFrom.push(w)
       result = mergeResults(result, extra, perGroup)
@@ -181,13 +199,13 @@ function browseByBudget(all: any[], budget: any, costById: Map<string, any>, per
     .map((d: any) => stripDoc(d))
 
   const groups = [
-    { key: 'promo', label: GROUP_LABEL.promo, all: promos },
     { key: 'recipe', label: GROUP_LABEL.recipe, all: recipes },
+    { key: 'promo', label: GROUP_LABEL.promo, all: promos },
   ]
     .filter((g) => g.all.length)
     .map((g) => ({ key: g.key, label: g.label, count: g.all.length, items: g.all.slice(0, perGroup) }))
 
-  const items = [...promos, ...recipes]
+  const items = [...recipes, ...promos]
   return {
     query: '',
     normalized: '',
@@ -231,7 +249,7 @@ function mergeResults(base: any, extra: any, perGroup: number) {
     seenItems.add(it.id)
   }
 
-  // Sap lai theo dung thu tu slide 5: 特売 → レシピ → 商品 → 記事 → 店舗 → …
+  // Sap lai theo dung thu tu hien thi: レシピ → 特売 → 商品 → 記事 → 店舗 → …
   // Khong sap thi nhom nao khop TRUOC se dung dau: go 「cari」 thi truy van goc
   // chi khop vai trang tinh (nhieu tu n-gram), the la nhom ページ nhay len dau
   // con レシピ bi day xuong duoi — nguoc han y nguoi dung.

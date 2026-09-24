@@ -47,14 +47,27 @@ const check = (name, ok, detail) => {
 
     // Thu tu nhom phai bam slide 5, ke ca khi ket qua duoc gop tu ban dich.
     // Da tung sai: go 'cari' thi nhom ページ (trang tinh, khop nhieu) nhay len dau.
-    const ORDER = ['特売', 'レシピ', '商品', '記事', '店舗', 'ページ', '機能']
+    const ORDER = ['レシピ', '特売', '商品', '記事', '店舗', 'ページ', '機能']
     for (const q of ['cari', 'sua', 'thit bo']) {
       const r = await get('/api/search?q=' + encodeURIComponent(q))
       const idx = (r.groups || []).map((g) => ORDER.indexOf(g.label))
       const sorted = idx.every((v, i) => i === 0 || v > idx[i - 1])
-      check(`"${q}": nhom xep dung thu tu slide 5`, sorted,
+      check(`"${q}": nhom xep dung thu tu hien thi`, sorted,
         (r.groups || []).map((g) => g.label).join(' > '))
     }
+
+    // Trang ket qua chi hien 5 nhom chinh. 'ページ' (43 trang tinh) va '機能'
+    // (5 bai gioi thieu tinh nang) bi an di — nhung VAN phai con cho chatbot dung.
+    for (const q of ['cari', 'うなぎ', '浜松', 'このサイトで何ができますか']) {
+      const r = await get('/api/search?q=' + encodeURIComponent(q))
+      const labels = (r.groups || []).map((g) => g.label)
+      check(`"${q}": khong hien nhom ページ/機能`,
+        !labels.includes('ページ') && !labels.includes('機能'), labels.join(' '))
+    }
+    const feat = await ask('このサイトで何ができますか')
+    check('chatbot van dung duoc tai lieu 機能',
+      feat.intent === 'feature' && (feat.sources || []).some((x) => x.type === '機能'),
+      'intent=' + feat.intent)
 
     // Chatbot: cau co dau va khong dau phai cho cung y dinh
     for (const [plain, accented] of [['cari co mon nao khong?', 'cà ri có món nào không?'], ['sua mua o dau?', 'sữa mua ở đâu?']]) {
@@ -102,6 +115,35 @@ const check = (name, ok, detail) => {
       const r = await ask(q)
       check(`dakuten: "${q}" -> ${want}`, r.intent === want, 'intent=' + r.intent)
     }
+  }
+
+  console.log('--- 3c. Moi cach hoi ngan sach deu cho cung ket qua ---')
+  {
+    // Danh sach tu thua viet tay khong bao giò phu het cach hoi. Phan chu con
+    // lai duoc doi chieu voi TEN tai lieu trong index: khong khop ten nao thi
+    // coi nhu khong co tu khoa. Nho vay moi cach hoi deu ra cung mot ket qua.
+    const WAYS = [
+      '2000円で何を食べますか', '2000円で何が作れる？', '2000円で作れる料理',
+      '2000円以内の料理', '2000円で何食べよう', '2000円で食べられるもの',
+      'ăn gì với 2000 yên', 'what can i eat with 2000 yen',
+    ]
+    const n = (r) => (r.groups || []).find((g) => g.key === 'recipe')?.count ?? 0
+    const base = n(await get('/api/search?q=' + encodeURIComponent(WAYS[0])))
+    check('cau dau tien tra ve co ket qua', base > 0, 'so mon = ' + base)
+    for (const q of WAYS.slice(1)) {
+      const r = await get('/api/search?q=' + encodeURIComponent(q))
+      check(`"${q}" cho cung so mon`, n(r) === base, `${n(r)} vs ${base}`)
+    }
+    // Chatbot phai khop voi trang tim kiem
+    for (const q of ['2000円で何を食べますか', 'ăn gì với 2000 yên']) {
+      const r = await ask(q)
+      check(`chatbot "${q}" khop trang tim kiem`,
+        r.intent === 'recipe' && String(r.answer).includes(String(base)),
+        'intent=' + r.intent + ', khong thay so ' + base)
+    }
+    // Cau CO tu khoa that thi van phai loc theo tu khoa, khong duoc duyet het
+    const curry = await get('/api/search?q=' + encodeURIComponent('2000円以内のカレー'))
+    check('"2000円以内のカレー" van loc theo tu khoa', n(curry) < base, n(curry) + ' vs ' + base)
   }
 
   console.log('--- 4. Search: sieu thi co ban ---')

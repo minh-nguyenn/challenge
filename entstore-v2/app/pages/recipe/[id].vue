@@ -37,8 +37,15 @@
             <div class="rd-buy">
               <p class="rd-buy-label">材料をまとめて：</p>
               <div class="rd-buy-btns">
-                <button type="button" class="rd-buy-btn rd-buy-store" @click="addAllToList">
-                  <span class="rd-buy-main">🏪 お店で買う</span>
+                <button
+                  type="button"
+                  class="rd-buy-btn rd-buy-store"
+                  :class="{ 'is-added': justAdded === 'list' }"
+                  @click="addAllToList"
+                >
+                  <span class="rd-buy-main">
+                    {{ justAdded === 'list' ? '✓ 追加しました' : '🏪 お店で買う' }}
+                  </span>
                   <span class="rd-buy-sub">買い物リストに追加 → 売場ごとに並べます</span>
                 </button>
 
@@ -47,9 +54,12 @@
                     v-if="buyableCount > 0"
                     type="button"
                     class="rd-buy-btn rd-buy-net"
+                    :class="{ 'is-added': justAdded === 'cart' }"
                     @click="addAllToCart"
                   >
-                    <span class="rd-buy-main">🛒 ネットで買う</span>
+                    <span class="rd-buy-main">
+                      {{ justAdded === 'cart' ? '✓ 追加しました' : '🛒 ネットで買う' }}
+                    </span>
                     <span class="rd-buy-sub">
                       カートに{{ buyableCount }}点追加 → ネット通販へ
                     </span>
@@ -183,6 +193,32 @@
             </li>
           </ul>
         </section>
+
+        <!-- Bài viết liên quan: để xem xong công thức còn có chỗ đọc tiếp -->
+        <section v-if="data.relatedArticles?.length" class="rd-sec rd-related">
+          <h3 class="rd-h3">関連記事 <small>（この食材・ジャンルの記事）</small></h3>
+          <ul class="rd-rel-list">
+            <li v-for="a in data.relatedArticles" :key="a.id">
+              <a :href="a.route">
+                <img
+                  v-if="a.image"
+                  :src="appendWebpFormat(a.image, 50, 320)"
+                  :alt="a.title"
+                  loading="lazy"
+                />
+                <span v-else class="rd-rel-noimg">📄</span>
+                <span class="rd-rel-body">
+                  <span class="rd-rel-title">{{ a.title }}</span>
+                  <span class="rd-rel-meta">
+                    <template v-if="a.typeLabel">{{ a.typeLabel }}</template>
+                    <template v-if="a.date">・{{ formatDateYMD(a.date, '.') }}</template>
+                  </span>
+                  <span class="rd-rel-shared">「{{ a.matched }}」の記事</span>
+                </span>
+              </a>
+            </li>
+          </ul>
+        </section>
       </template>
 
       <AppButtonNavigation
@@ -194,6 +230,18 @@
     </main>
 
     <UribaMapModal v-model="mapOpen" :highlight="highlightUriba" title="売場マップ（買い物リスト連動）" />
+
+    <!-- Báo đã thêm, kèm lối đi tiếp — thay cho việc mở sơ đồ chắn ngang -->
+    <Teleport to="body">
+      <Transition name="rd-toast">
+        <div v-if="toast" class="rd-toast" role="status">
+          <span class="rd-toast-tick">✓</span>
+          <span class="rd-toast-text">{{ toast.text }}</span>
+          <NuxtLink :to="toast.to" class="rd-toast-go">{{ toast.cta }}</NuxtLink>
+          <button type="button" class="rd-toast-x" aria-label="閉じる" @click="toast = null">×</button>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -209,7 +257,9 @@
 import { ref, computed, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { appendWebpFormat } from '~/composables/useImage'
+import { formatDateYMD } from '~/utils/index.js'
 import { useShoppingList } from '~/composables/useShoppingList'
+import { useAddFeedback } from '~/composables/useAddFeedback'
 import { useCart } from '~/composables/useCart'
 
 const route = useRoute()
@@ -240,11 +290,12 @@ const highlightUriba = computed(() => {
   return [...new Set(target.map((i) => i.uriba))]
 })
 
-function addAllToList() {
+function addAllToList(e) {
   const list = data.value?.ingredients || []
   const target = checked.value.length
     ? list.filter((i) => checked.value.includes(i.cleanName))
     : list
+  if (!target.length) return
   addMany(
     target.map((i) => ({
       name: i.cleanName,
@@ -253,7 +304,9 @@ function addAllToList() {
       from: data.value?.title || '',
     }))
   )
-  mapOpen.value = true
+  // Trước đây chỗ này mở luôn sơ đồ 売場 — che mất trang. Giờ chỉ báo bằng
+  // animation; ai muốn xem sơ đồ thì vẫn có nút 「売場マップを見る」 ở trên.
+  signalAdded('list', target.length, e?.currentTarget)
 }
 
 /**
@@ -271,11 +324,45 @@ const buyableIngredients = computed(() => {
 
 const buyableCount = computed(() => buyableIngredients.value.length)
 
-function addAllToCart() {
-  for (const i of buyableIngredients.value) {
+function addAllToCart(e) {
+  const items = buyableIngredients.value
+  if (!items.length) return
+  for (const i of items) {
     cart.add({ ...i.product, promo: i.promo || null })
   }
+  signalAdded('cart', items.length, e?.currentTarget)
 }
+
+/**
+ * Báo "đã thêm" bằng ba tầng: chip bay lên lối vào tương ứng, nút đổi sang
+ * dấu ✓ trong chốc lát, và một thanh nhỏ hiện ra kèm link đi tiếp — để không
+ * ai phải đoán hàng vừa rơi vào đâu.
+ */
+const { fly } = useAddFeedback()
+const justAdded = ref('')
+const toast = ref(null)
+let addedTimer = null
+let toastTimer = null
+
+function signalAdded(target, n, fromEl) {
+  fly(fromEl, target, '+' + n)
+
+  justAdded.value = target
+  clearTimeout(addedTimer)
+  addedTimer = setTimeout(() => (justAdded.value = ''), 1600)
+
+  toast.value =
+    target === 'list'
+      ? { text: `買い物リストに ${n} 品 追加しました`, to: '/list', cta: '買い物リストを見る' }
+      : { text: `カートに ${n} 点 追加しました`, to: '/cart', cta: 'カートを見る' }
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => (toast.value = null), 5000)
+}
+
+onBeforeUnmount(() => {
+  clearTimeout(addedTimer)
+  clearTimeout(toastTimer)
+})
 
 /** Dinh dưỡng có phải số THẬT từ Kitchen365 không (khác với số DEMO) */
 const isRealNutrition = computed(() => !!data.value?.nutrition?.real)
@@ -444,8 +531,24 @@ useHead(() => ({
   color: #331e0e;
   cursor: pointer;
   text-align: left;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
 
   &:hover { background: #fffaf0; }
+  &:active { transform: scale(0.97); }
+
+  /* Vừa bấm xong: nhấp một cái rồi giữ nền xanh cho tới khi chữ ✓ tắt */
+  &.is-added {
+    animation: rd-pop 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-color: #1d7a45;
+    background: #eaf7ef;
+    color: #14663a;
+  }
+}
+
+@keyframes rd-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.04); }
+  100% { transform: scale(1); }
 }
 
 .rd-buy-main {
@@ -748,4 +851,95 @@ useHead(() => ({
 }
 
 .rd-back { margin-top: 40px; }
+</style>
+
+<!--
+  Thanh báo "đã thêm" được Teleport ra <body> nên style phải để ngoài scoped.
+  Đặt trên thanh giỏ hàng (nếu đang hiện) bằng biến chung --cart-bar-h.
+-->
+<style lang="scss">
+.rd-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(18px + var(--cart-bar-h, 0px));
+  transform: translateX(-50%);
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 24px);
+  padding: 11px 12px 11px 14px;
+  border-radius: 999px;
+
+  background: #24301f;
+  color: #fff;
+  font-size: 14px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+}
+
+.rd-toast-tick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #2f9e5e;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.rd-toast-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rd-toast-go {
+  flex: 0 0 auto;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #fff;
+  color: #24301f;
+  font-weight: bold;
+  text-decoration: none;
+
+  &:hover { background: #f3e7cd; }
+}
+
+.rd-toast-x {
+  flex: 0 0 auto;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover { color: #fff; }
+}
+
+.rd-toast-enter-active {
+  transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.rd-toast-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.rd-toast-enter-from,
+.rd-toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(14px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-toast-enter-active,
+  .rd-toast-leave-active {
+    transition: opacity 0.2s ease;
+  }
+  .rd-toast-enter-from,
+  .rd-toast-leave-to {
+    transform: translateX(-50%);
+  }
+}
 </style>

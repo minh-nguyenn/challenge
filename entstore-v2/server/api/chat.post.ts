@@ -1,5 +1,5 @@
 import { normalizeJa } from '~~/shared/jp-text.mjs'
-import { search, searchQuestion, extractKeywords, groupOf } from '~~/shared/search-engine.mjs'
+import { search, searchQuestion, extractKeywords, groupOf, looksLikeKeyword } from '~~/shared/search-engine.mjs'
 import {
   detectLang,
   smallTalkKind,
@@ -250,7 +250,9 @@ function detectFilters(text) {
   const budget = detectBudget(s)
   if (budget) {
     out.budget = budget
-    out.budgetOnly = stripBudget(s, budget).generic
+    const strip = stripBudget(s, budget)
+    out.budgetOnly = strip.generic
+    out.budgetRest = strip.rest
   }
 
   // Câu CHỈ có điều kiện, không có từ khoá nào: 「15分で作れる料理」,
@@ -260,7 +262,9 @@ function detectFilters(text) {
   for (const m of [budget?.match, min?.[0], kc?.[0]]) {
     if (m) residual = residual.replace(m, ' ')
   }
-  out.genericOnly = stripBudget(residual, null).generic
+  const left = stripBudget(residual, null)
+  out.genericOnly = left.generic
+  out.residual = left.rest
 
   // Khu vực cửa hàng
   const areaMap = {
@@ -411,7 +415,7 @@ const fmtDate = (iso) => {
  */
 const TOPIC_ANSWER = {
   feature: {
-    ja: 'このサイトでは、一つの検索ボックスで「特売・レシピ・商品・記事・店舗」をまとめて探せます。レシピはAIが音声で読み上げ、材料から買い物リストと売場マップを自動作成します。うなぎ・ウナギ・鰻のような表記ゆれも同じ結果になります。',
+    ja: 'このサイトでは、一つの検索ボックスで「レシピ・特売・商品・記事・店舗」をまとめて探せます。レシピはAIが音声で読み上げ、材料から買い物リストと売場マップを自動作成します。うなぎ・ウナギ・鰻のような表記ゆれも同じ結果になります。',
     vi: 'Trang này cho phép tìm "khuyến mãi · công thức · sản phẩm · bài viết · cửa hàng" chỉ với một ô tìm kiếm. Công thức có AI đọc bằng giọng nói, tự tạo danh sách đi chợ và sơ đồ quầy hàng. Gõ うなぎ/ウナギ/鰻 đều ra cùng kết quả.',
     en: 'This site lets you search sales, recipes, products, articles and stores from a single box. Recipes can be read aloud by AI, and it builds a shopping list and store map automatically. Japanese spelling variants all return the same results.',
     zh: '本网站可通过一个搜索框同时查找特卖、食谱、商品、文章和门店。食谱支持AI语音朗读，并自动生成购物清单和卖场地图。',
@@ -843,10 +847,16 @@ function retrieve(question, intent, filters, limit = 8) {
   // Câu chỉ có điều kiện (「15分で作れる料理」) thì lấy TOÀN BỘ công thức làm
   // ứng viên rồi để các bộ lọc bên dưới cắt, thay vì tìm theo chữ.
   // Trước đây 「15分で作れる料理」 chỉ ra 1 món — là món tình cờ có chữ khớp.
-  if (filters.genericOnly && wantGroups?.includes('recipe')) {
+  // Danh sách từ thừa không phủ hết mọi cách hỏi, nên kiểm thêm bằng chỉ mục:
+  // phần chữ còn lại không khớp TÊN tài liệu nào thì coi như không có từ khoá.
+  const noKeyword = (rest) => !rest || !looksLikeKeyword(all, rest, toJapaneseKeywords(rest));
+  const genericOnly = filters.genericOnly || noKeyword(filters.residual);
+  const budgetOnly = filters.budgetOnly || noKeyword(filters.budgetRest);
+
+  if (genericOnly && wantGroups?.includes('recipe')) {
     const allRecipes = pool.filter((d) => d.type === 'recipe');
     if (allRecipes.length) {
-      return applyFilters(allRecipes.map((d) => ({ ...d, score: 1 })), filters, all)
+      return applyFilters(allRecipes.map((d) => ({ ...d, score: 1 })), filters, all, { budgetOnly })
     }
   }
 
@@ -879,7 +889,7 @@ function retrieve(question, intent, filters, limit = 8) {
   if (!items.length) {
     items = searchQuestion(all, question, { limit }).items;
   }
-  return applyFilters(items, filters, all)
+  return applyFilters(items, filters, all, { budgetOnly })
 }
 
 /**
@@ -888,7 +898,7 @@ function retrieve(question, intent, filters, limit = 8) {
  * Tách riêng để dùng được ở hai chỗ: sau khi tìm theo chữ, và khi duyệt thẳng
  * toàn bộ công thức (câu chỉ có điều kiện, không có từ khoá).
  */
-function applyFilters(items, filters, all) {
+function applyFilters(items, filters, all, opts = {}) {
   // --- NGÂN SÁCH --- (chi phí nguyên liệu ước tính, xem shared/budget.mjs)
   if (filters.budget) {
     const { costById } = getStore();
@@ -924,7 +934,7 @@ function applyFilters(items, filters, all) {
       return pool
     };
 
-    const f = filters.budgetOnly ? browseAll() : items.filter(inBudget).map(withCost);
+    const f = opts.budgetOnly ? browseAll() : items.filter(inBudget).map(withCost);
     // KHÔNG rơi về danh sách chưa lọc khi rỗng. Không có món nào trong tầm giá
     // thì phải trả về rỗng để bot nói thẳng, thay vì đọc ra mấy món sai giá.
     items = f.length ? f : browseAll();
@@ -1094,7 +1104,7 @@ function ruleAnswer(question, lang, hits, intentKey, totalFound = 0) {
     lines.push(byLang[lang] || byLang.ja);
   } else if (top.type === "feature") {
     const byLang = {
-      ja: "このサイトでは、一つの検索ボックスで「特売・レシピ・商品・記事・店舗」をまとめて探せます。レシピはAIが音声で読み上げ、材料から買い物リストと売場マップを自動作成します。",
+      ja: "このサイトでは、一つの検索ボックスで「レシピ・特売・商品・記事・店舗」をまとめて探せます。レシピはAIが音声で読み上げ、材料から買い物リストと売場マップを自動作成します。",
       vi: 'Trang này cho phép tìm "khuyến mãi · công thức · sản phẩm · bài viết · cửa hàng" chỉ với một ô tìm kiếm. Công thức có AI đọc bằng giọng nói, tự tạo danh sách đi chợ và sơ đồ quầy hàng.',
       en: "This site lets you search sales, recipes, products, articles and stores from a single box. Recipes can be read aloud by AI, and it builds a shopping list and store map automatically.",
       zh: "本网站可通过一个搜索框同时查找特卖、食谱、商品、文章和门店。食谱支持AI语音朗读，并自动生成购物清单和卖场地图。",
@@ -1249,7 +1259,15 @@ export default defineEventHandler(async (event) => {
   // Phải ép về ý định 'recipe': 「what can i eat…」 trùng mẫu 「what can i do」
   // của ý định 'feature', nên bot từng đáp bằng bài giới thiệu website —
   // chẳng liên quan gì tới câu hỏi.
-  if (filters.budget && filters.budgetOnly && intent?.key !== 'promo' && intent?.key !== 'shop') {
+  // Cùng luật với retrieve(): từ thừa là từ không khớp tên tài liệu nào.
+  // 「2000円で何を食べますか」 còn sót 「食べますか」 — danh sách viết tay không bắt được.
+  const askingBudgetOnly =
+    !!filters.budget &&
+    (filters.budgetOnly ||
+      !filters.budgetRest ||
+      !looksLikeKeyword(store.docs, filters.budgetRest, toJapaneseKeywords(filters.budgetRest)))
+
+  if (askingBudgetOnly && intent?.key !== 'promo' && intent?.key !== 'shop') {
     intent = INTENTS.find((i) => i.key === 'recipe') || intent
   }
 

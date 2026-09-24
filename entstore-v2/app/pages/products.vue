@@ -90,14 +90,24 @@
                 </template>
               </p>
 
-              <button
-                type="button"
-                class="pl-add"
-                :class="{ added: cart.has(p.id) }"
-                @click="addToCart(p)"
-              >
-                {{ cart.has(p.id) ? '✓ カートに入っています' : '🛒 カートに入れる' }}
-              </button>
+              <!--
+                Hai lối đi từ một sản phẩm: bỏ vào giỏ, hoặc xem nấu được món gì.
+                「レシピを探す」 tìm theo đúng tên sản phẩm nên ra cả công thức,
+                khuyến mãi và cửa hàng có bán mặt hàng đó.
+              -->
+              <div class="pl-act">
+                <button
+                  type="button"
+                  class="pl-btn pl-btn-cart"
+                  :class="{ added: cart.has(p.id) }"
+                  @click="addToCart(p)"
+                >
+                  {{ cart.has(p.id) ? '✓ カート済み' : '🛒 カートに入れる' }}
+                </button>
+                <NuxtLink class="pl-btn" :to="`/search?q=${encodeURIComponent(p.name)}`">
+                  レシピを探す
+                </NuxtLink>
+              </div>
             </li>
           </ul>
 
@@ -388,21 +398,42 @@ $red: #c7273b;
   padding: 1px 5px;
 }
 
-.pl-add {
+.pl-act {
   margin-top: auto;
-  height: 38px;
+  display: flex;
+  gap: 6px;
+}
+
+.pl-btn {
+  flex: 1;
+  height: 36px;
+  line-height: 32px;
   border: 2px solid $brown;
   border-radius: 4px;
+  background: #fff;
+  color: $brown;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    background: $cream;
+  }
+}
+
+/* Thêm giỏ là hành động chính nên tô đậm */
+.pl-btn-cart {
   background: $brown;
   color: #fff;
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
 
   &:hover {
     background: color.adjust($brown, $lightness: 8%);
   }
 
+  /* Đã có trong giỏ thì đổi sang viền, để nút kia không bị lấn át */
   &.added {
     background: #fff;
     color: $brown;
@@ -447,6 +478,17 @@ $red: #c7273b;
 
   .pl-select {
     min-width: 110px;
+  }
+
+  /* Thẻ chỉ rộng ~150px nên hai nút phải xếp chồng, không đứng cạnh nhau */
+  .pl-act {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .pl-btn {
+    height: 32px;
+    line-height: 28px;
   }
 }
 </style>

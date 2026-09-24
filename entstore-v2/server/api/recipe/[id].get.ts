@@ -1,14 +1,16 @@
 // Chi tiet mot cong thuc: nguyen lieu da gan quay 売場 / gia / khuyen mai,
 // dinh duong that (Kitchen365) neu co, va cac mon lien quan.
 import { uribaOf, groupByUriba } from '~~/shared/uriba.mjs'
+import { search } from '~~/shared/search-engine.mjs'
+
+// Chi tinh 4 quay nguyen lieu chinh — gia vi thi mon nao cung co, khong noi len dieu gi
+const MAIN = new Set(['seika', 'sengyo', 'seiniku', 'nippai'])
 
 /**
  * Goi y mon lien quan. Cham diem theo: chung nguyen lieu chinh (nang nhat),
  * cung the loai, thoi gian nau xap xi.
  */
 function findRelated(doc: any, docs: any[], limit = 4) {
-  // Chi tinh 4 quay nguyen lieu chinh — gia vi thi mon nao cung co, khong noi len dieu gi
-  const MAIN = new Set(['seika', 'sengyo', 'seiniku', 'nippai'])
   const mainOf = (d: any) =>
     new Set(
       (d.ingredients || [])
@@ -53,6 +55,43 @@ function findRelated(doc: any, docs: any[], limit = 4) {
       category: (d.category || [])[0] || '',
       // Nói rõ vì sao gợi ý món này — minh bạch hơn là danh sách vô cớ
       sharedIngredients: shared.slice(0, 3),
+    }))
+}
+
+/**
+ * Bai viet lien quan den mon an. Truoc day trang cong thuc la ngo cut: xem xong
+ * khong co gi de doc tiep. Cham diem bai viet theo nguyen lieu chinh (nang hon)
+ * roi den the loai cua mon, va ghi ro tu khoa nao khop — giong 関連レシピ.
+ */
+function findRelatedArticles(doc: any, docs: any[], mainNames: string[], limit = 4) {
+  const terms: { term: string; weight: number }[] = [
+    ...[...new Set(mainNames)].map((term) => ({ term, weight: 3 })),
+    ...(doc.category || []).map((term: string) => ({ term, weight: 1 })),
+  ]
+
+  const best = new Map<string, { doc: any; score: number; term: string }>()
+  for (const { term, weight } of terms) {
+    if (!term || term.length < 2) continue
+    const r = search(docs, term, { types: ['article'], perGroup: 6, limit: 6 })
+    for (const it of r.items) {
+      const score = (it.score || 0) * weight
+      const prev = best.get(it.id)
+      if (!prev || score > prev.score) best.set(it.id, { doc: it, score, term })
+    }
+  }
+
+  return [...best.values()]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(({ doc: d, term }) => ({
+      id: d.id,
+      title: d.title,
+      route: d.route,
+      image: d.image || '',
+      typeLabel: d.typeLabel || '記事',
+      date: d.date || '',
+      // Noi ro vi sao goi y bai nay
+      matched: term,
     }))
 }
 
@@ -105,6 +144,11 @@ export default defineEventHandler((event) => {
     source: doc.source || 'cms',
     category: doc.category || [],
     related: findRelated(doc, docs),
+    relatedArticles: findRelatedArticles(
+      doc,
+      docs,
+      enriched.filter((i: any) => MAIN.has(i.uriba)).map((i: any) => i.cleanName)
+    ),
     demo: true,
   }
 })

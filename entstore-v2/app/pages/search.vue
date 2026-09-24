@@ -40,7 +40,7 @@
             </p>
           </div>
 
-          <!-- Kết quả nhóm theo đúng thứ tự slide 5: 特売→レシピ→商品→記事→店舗 -->
+          <!-- Kết quả nhóm theo thứ tự: レシピ→特売→商品→記事→店舗 -->
           <section v-for="g in data?.groups || []" :key="g.key" class="sr-group">
             <h3 class="sr-group-title">
               <span class="sr-group-tag" :data-group="g.key">{{ g.label }}</span>
@@ -215,7 +215,7 @@
 /**
  * Trang gợi ý 「なんでも検索」 — slide 3 bước ②, slide 5.
  *
- * Kết quả gộp và nhóm theo 特売 → レシピ → 商品 → 記事 → 店舗, kèm số lượng
+ * Kết quả gộp và nhóm theo レシピ → 特売 → 商品 → 記事 → 店舗, kèm số lượng
  * từng nhóm. Sản phẩm đang khuyến mãi được làm nổi bật giá KM và hạn dùng.
  *
  * ⚠️ Giá / tồn kho / khuyến mãi là dữ liệu ẢO — luôn kèm badge 「DEMO」.

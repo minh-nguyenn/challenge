@@ -66,7 +66,10 @@ Chi tiết ở [GIAI-DOAN-2.md](GIAI-DOAN-2.md).
 | Cửa hàng (`config/shop-data.js`) | 37 |
 | Tri thức về tính năng Smart Search | 5 |
 
-Kết quả nhóm theo đúng slide 5: **特売 → レシピ → 商品 → 記事 → 店舗**, kèm số lượng từng nhóm.
+Kết quả nhóm theo thứ tự: **レシピ → 特売 → 商品 → 記事 → 店舗**, kèm số lượng từng nhóm.
+
+> Proposal ban đầu xếp 特売 lên đầu. Đã đổi để レシピ đứng trước: phần lớn từ
+> khoá người dùng gõ là tên món hoặc nguyên liệu, nên công thức mới là thứ họ tìm.
 
 ### Yêu cầu 3 — Dữ liệu ảo có badge DEMO
 
@@ -181,7 +184,7 @@ Chatbot cũng bỏ dấu ở cả câu hỏi lẫn mẫu nhận ý định (`det
 > nơi trả lời khác nhau (`cà ri`: chatbot ra 12 công thức, search ra **0**).
 > Và cả hai đều chỉ hiểu bản **có dấu**: `cari` ra 0 kết quả.
 
-Thứ tự nhóm luôn bám slide 5 kể cả khi kết quả được gộp từ bản dịch. Trước đây
+Thứ tự nhóm luôn giữ đúng kể cả khi kết quả được gộp từ bản dịch. Trước đây
 gõ `cari` thì truy vấn gốc chỉ khớp vài trang tĩnh (nhiễu n-gram), thế là nhóm
 `ページ` nhảy lên đầu còn `レシピ` bị đẩy xuống dưới.
 
