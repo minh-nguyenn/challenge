@@ -1,7 +1,7 @@
 <template>
   <!-- Ô tìm kiếm đã do layout dựng sẵn cho mọi trang, ở đây không đặt lại -->
   <div>
-    <div class="wrap-content">
+    <div class="wrap-content page-pad">
       <main>
         <VxBreadcrumbs :items="breadcrumbItems" divider=">" />
 
@@ -395,5 +395,11 @@ $red: #c7273b;
     padding: 15px 12px;
     font-size: 15px;
   }
+}
+
+/* Dien thoai: nut tang/giam va nut xoa to vua ngon tay (>= 36px) */
+@media only screen and (max-width: 600px) {
+  .ct-qty button { width: 36px; height: 36px; font-size: 17px; }
+  .ct-remove { min-width: 40px; min-height: 40px; font-size: 18px; }
 }
 </style>

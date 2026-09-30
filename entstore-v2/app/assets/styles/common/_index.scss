@@ -42,6 +42,30 @@ a {
   }
 }
 
+// Safari tren iPhone/iPad tu PHONG TO trang khi cham vao o nhap co chu < 16px
+// (moi o nhap cua site dang 12–15px). Dua len 16px tren dien thoai / may cam
+// ung la cach sua chuan; khong dung maximum-scale=1 vi tren Android no khoa
+// luon thao tac chum ngon de phong to. !important vi nhieu component dat
+// font-size bang selector scoped co do uu tien cao hon.
+@media only screen and (max-width: 1023px), (pointer: coarse) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='submit']):not([type='button']),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+// Trang moi them vao (san pham, KM, gio hang): tren dien thoai .wrap-content
+// khong co le, cac trang goc tu cho tung khoi le 12px. Class nay lam thay
+// viec do cho moi khoi con cua <main>, tru thanh breadcrumbs (tran het chieu
+// ngang) va tieu de h2 (da co le rieng o duoi).
+.wrap-content.page-pad > main > :not(.v-breadcrumbs):not(h2) {
+  @media only screen and (max-width: 1023px) {
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+}
+
 .flex-direction-nav a {
   &:before {
     line-height: 1;

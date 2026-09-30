@@ -1,7 +1,7 @@
 <template>
   <!-- Ô tìm kiếm đã do layout dựng sẵn cho mọi trang, ở đây không đặt lại -->
   <div>
-    <div class="wrap-content">
+    <div class="wrap-content page-pad">
       <main>
         <VxBreadcrumbs :items="breadcrumbItems" divider=">" />
 
@@ -490,5 +490,17 @@ $red: #c7273b;
     height: 32px;
     line-height: 28px;
   }
+}
+
+/* Dien thoai: 3 o loc chia deu 3 cot, o chon gian het o thay vi co dinh be ngang */
+@media only screen and (max-width: 600px) {
+  .pl-filters {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 12px;
+  }
+  .pl-filter { min-width: 0; }
+  .pl-select { width: 100%; min-width: 0; }
 }
 </style>

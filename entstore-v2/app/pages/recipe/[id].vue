@@ -932,6 +932,48 @@ useHead(() => ({
   transform: translateX(-50%) translateY(14px);
 }
 
+/*
+  Điện thoại: dạng viên thuốc 1 hàng bị cắt chữ 「買い物リ…」 và đè lên nút chat.
+  Đổi thành thẻ trải ngang, chữ được xuống dòng, nút đi tiếp nằm hàng riêng,
+  và đặt cao hơn nút chat (50px + lề).
+*/
+@media only screen and (max-width: 600px) {
+  .rd-toast {
+    left: 12px;
+    right: 12px;
+    transform: none;
+    max-width: none;
+    bottom: calc(76px + var(--cart-bar-h, 0px));
+    flex-wrap: wrap;
+    row-gap: 10px;
+    padding: 12px 6px 12px 14px;
+    border-radius: 14px;
+  }
+  .rd-toast-text {
+    flex: 1 1 0;
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.4;
+  }
+  .rd-toast-x {
+    order: 2;
+    width: 40px;
+    height: 32px;
+    font-size: 22px;
+  }
+  .rd-toast-go {
+    order: 3;
+    flex: 1 0 100%;
+    margin-right: 8px;
+    padding: 9px 14px;
+    text-align: center;
+  }
+  .rd-toast-enter-from,
+  .rd-toast-leave-to {
+    transform: translateY(14px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rd-toast-enter-active,
   .rd-toast-leave-active {
@@ -940,6 +982,13 @@ useHead(() => ({
   .rd-toast-enter-from,
   .rd-toast-leave-to {
     transform: translateX(-50%);
+  }
+}
+/* Tren dien thoai thanh bao khong can giua bang translateX nen bo di */
+@media only screen and (max-width: 600px) and (prefers-reduced-motion: reduce) {
+  .rd-toast-enter-from,
+  .rd-toast-leave-to {
+    transform: none;
   }
 }
 </style>

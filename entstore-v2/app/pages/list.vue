@@ -308,4 +308,43 @@ useHead({ title: '買い物リスト｜遠鉄ストア' })
 }
 
 .sl-back { margin-top: 40px; }
+
+/*
+  Điện thoại: flex-wrap làm mỗi dòng vỡ thành 3 hàng lộn xộn, nút × trôi xa món
+  hàng. Xếp lại bằng lưới cố định:
+    ☐ tên món ……………… định lượng
+      (thuộc công thức nào)
+      giá ………………  − 1 ＋   ×
+  và phóng to nút cho vừa ngón tay (≥ 36px).
+*/
+@media only screen and (max-width: 600px) {
+  .sl-list li {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    grid-template-areas:
+      'check check amt'
+      'from from from'
+      'price qty del';
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 4px;
+    padding: 10px 0;
+  }
+  .sl-check { grid-area: check; min-width: 0; }
+  .sl-check input { width: 20px; height: 20px; }
+  .sl-amt { grid-area: amt; }
+  .sl-from { grid-area: from; padding-left: 28px; }
+  .sl-price { grid-area: price; padding-left: 28px; }
+  .sl-qty {
+    grid-area: qty;
+    button { width: 36px; height: 36px; font-size: 16px; }
+    span { min-width: 22px; font-size: 14px; }
+  }
+  .sl-del {
+    grid-area: del;
+    width: 40px;
+    height: 40px;
+    font-size: 22px;
+  }
+}
 </style>

@@ -306,4 +306,11 @@ onBeforeUnmount(() => {
   border-radius: 3px;
   display: inline-block;
 }
+
+/* Nut dong: vung bam 44px, nhin van nhu cu */
+.um-close {
+  min-width: 44px;
+  min-height: 44px;
+  margin: -8px -10px -8px 0;
+}
 </style>

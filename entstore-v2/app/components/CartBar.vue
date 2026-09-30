@@ -203,4 +203,9 @@ $red: #c7273b;
     font-size: 13px;
   }
 }
+
+/* Dien thoai: nut an thanh gio hang to vua ngon tay */
+@media only screen and (max-width: 600px) {
+  .cb-close { min-width: 40px; min-height: 40px; }
+}
 </style>

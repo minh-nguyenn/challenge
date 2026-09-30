@@ -83,7 +83,7 @@ function toggle() {
 </script>
 
 <template>
-  <div class="cw">
+  <div class="cw" :class="{ 'is-open': open }">
     <button
       type="button"
       class="cw-bubble"
@@ -98,7 +98,11 @@ function toggle() {
     <div v-if="open" class="cw-panel">
       <header class="cw-head">
         <span class="cw-title">{{ title }}</span>
-        <span class="cw-lang">{{ lang.toUpperCase() }}</span>
+        <span class="cw-head-right">
+          <span class="cw-lang">{{ lang.toUpperCase() }}</span>
+          <!-- Chỉ hiện trên điện thoại: khung chat phủ cả màn hình nên cần nút đóng ngay trong khung -->
+          <button type="button" class="cw-close" aria-label="閉じる" @click="toggle">×</button>
+        </span>
       </header>
 
       <div ref="body" class="cw-body">
@@ -203,6 +207,53 @@ function toggle() {
   padding: 10px 14px;
   background: #331e0e;
   color: #fff;
+}
+.cw-head-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cw-close {
+  display: none;
+  width: 40px;
+  height: 40px;
+  margin: -6px -8px -6px 0;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/*
+  Điện thoại: khung nổi 360px bị lộ trang phía sau và bị thanh giỏ hàng đè ở
+  đáy. Mở toàn màn hình như một màn của app; nút tròn ẩn đi, đóng bằng × trên
+  đầu khung. z-index cao hơn nút MENU của site và thanh giỏ hàng.
+*/
+@media only screen and (max-width: 600px) {
+  .cw-bubble {
+    width: 50px;
+    height: 50px;
+    font-size: 21px;
+  }
+  // Tren nut MENU (104) va thanh gio hang (900)
+  .cw.is-open {
+    z-index: 1000;
+    .cw-bubble { display: none; }
+  }
+  .cw-panel {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .cw-head { padding: 12px 14px; }
+  .cw-close { display: block; }
 }
 
 .cw-title { font-size: 14px; }

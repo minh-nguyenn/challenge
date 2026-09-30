@@ -1,5 +1,5 @@
 <template>
-  <div class="wrap-content">
+  <div class="wrap-content page-pad">
     <main>
       <VxBreadcrumbs :items="breadcrumbItems" divider=">" />
 

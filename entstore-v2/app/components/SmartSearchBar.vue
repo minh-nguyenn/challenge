@@ -95,9 +95,20 @@ function onClickOutside(e) {
   if (box.value && !box.value.contains(e.target)) open.value = false
 }
 
-onMounted(() => document.addEventListener('click', onClickOutside))
+// Màn hình hẹp: chữ gợi ý dài bị cắt giữa chừng 「…店舗名を入力（」, nên đổi sang bản ngắn
+const narrow = ref(false)
+let mq = null
+const onMq = () => (narrow.value = !!mq?.matches)
+
+onMounted(() => {
+  document.addEventListener('click', onClickOutside)
+  mq = window.matchMedia('(max-width: 600px)')
+  onMq()
+  mq.addEventListener('change', onMq)
+})
 onBeforeUnmount(() => {
   document.removeEventListener('click', onClickOutside)
+  mq?.removeEventListener('change', onMq)
   clearTimeout(timer)
 })
 </script>
@@ -110,7 +121,7 @@ onBeforeUnmount(() => {
           v-model="q"
           type="search"
           class="ss-input"
-          placeholder="商品名・料理名・食材・店舗名を入力（例：うなぎ、カレー、上島店…）"
+          :placeholder="narrow ? '商品・料理・食材・店舗で検索' : '商品名・料理名・食材・店舗名を入力（例：うなぎ、カレー、上島店…）'"
           aria-label="サイト内検索"
           @keydown.enter.prevent="onEnter"
           @keydown.down.prevent="move(1)"
@@ -139,16 +150,22 @@ onBeforeUnmount(() => {
         các trang đó không có đường nào bấm tới ngoài gõ thẳng URL.
         Số trên nút giỏ hàng chỉ hiện khi đã có hàng, nên không phá bố cục cũ.
       -->
+      <!--
+        Trên điện thoại 4 lối vào này xếp thành lưới 4 cột kiểu thanh tab của app
+        (biểu tượng trên, chữ dưới) để không rớt dòng và đủ to để bấm bằng ngón tay.
+        ClientOnly chỉ bọc con số — trước đây bọc cả nút カート nên lúc tải trang
+        nút này hiện sau cùng, làm cả hàng nhảy bố cục.
+      -->
       <nav class="ss-links">
-        <NuxtLink to="/promo" class="ss-link ss-link-promo">🔥 特売情報</NuxtLink>
-        <NuxtLink to="/products" class="ss-link">🧺 商品一覧</NuxtLink>
-        <NuxtLink to="/list" class="ss-link">📝 買い物リスト</NuxtLink>
-        <ClientOnly>
-          <NuxtLink to="/cart" class="ss-link ss-link-cart">
-            🛒 カート
+        <NuxtLink to="/promo" class="ss-link ss-link-promo"><span class="ss-ico">🔥</span><span>特売情報</span></NuxtLink>
+        <NuxtLink to="/products" class="ss-link"><span class="ss-ico">🧺</span><span>商品一覧</span></NuxtLink>
+        <NuxtLink to="/list" class="ss-link"><span class="ss-ico">📝</span><span>買い物リスト</span></NuxtLink>
+        <NuxtLink to="/cart" class="ss-link ss-link-cart">
+          <span class="ss-ico">🛒</span><span>カート</span>
+          <ClientOnly>
             <span v-if="cart.count.value > 0" class="ss-cart-n">{{ cart.count.value }}</span>
-          </NuxtLink>
-        </ClientOnly>
+          </ClientOnly>
+        </NuxtLink>
       </nav>
 
       <div v-if="!compact" class="ss-extra">
@@ -440,6 +457,40 @@ $red: #c7273b;
   font-size: 11px;
   font-weight: bold;
   padding: 0 5px;
+}
+
+.ss-ico { line-height: 1; }
+
+// Điện thoại: lưới 4 cột kiểu thanh tab của app — không rớt dòng, mỗi ô cao 50px
+@media only screen and (max-width: 600px) {
+  .ss-links {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .ss-link {
+    position: relative;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    min-height: 50px;
+    padding: 6px 2px;
+    border-radius: 10px;
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .ss-ico { font-size: 18px; }
+  .ss-cart-n {
+    position: absolute;
+    top: 3px;
+    right: 6px;
+    min-width: 16px;
+    height: 16px;
+    line-height: 16px;
+    font-size: 10px;
+    padding: 0 4px;
+  }
 }
 
 @media only screen and (max-width: 767px) {
