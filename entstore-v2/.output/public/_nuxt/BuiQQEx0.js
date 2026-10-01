@@ -1,0 +1,1 @@
+import"#entry";var e=``+new URL(`img_noimg.Ddr3j3i5.webp`,import.meta.url).href;export{e as t};

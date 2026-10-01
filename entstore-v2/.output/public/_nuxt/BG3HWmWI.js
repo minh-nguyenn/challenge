@@ -1,0 +1,1 @@
+import{L as e,m as t,t as n}from"./D9xJr2Zl.js";var r={};function i(n,r){return e(),t(`div`)}var a=n(r,[[`render`,i]]);export{a as default};

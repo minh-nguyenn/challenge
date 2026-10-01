@@ -1,0 +1,9 @@
+//#region app/pages/contact/form/confirm.vue?vue&type=style&index=0&scoped=3be39982&inline&used&lang.scss
+var confirm_vue_vue_type_style_index_0_scoped_3be39982_inline_used_lang_default = ".td-description[data-v-3be39982]{white-space:pre-line!important}.btnarea input[type=submit][data-v-3be39982]:hover{opacity:.8}.wrap-outside[data-v-3be39982]{margin-bottom:30px!important}.table-horz th[data-v-3be39982]{width:30%;display:table-cell!important}@media only screen and (width<=600px){.table-horz td[data-v-3be39982],.table-horz th[data-v-3be39982]{font-size:10px!important;display:table-cell!important}}@media only screen and (width<=1023px){.wrap-outside[data-v-3be39982],.wrap-outside .btnarea[data-v-3be39982]{margin-bottom:0}.wrap-outside .btnarea img[data-v-3be39982]{width:300px;margin-top:20px}}.caution[data-v-3be39982]{color:#ce2339}@media only screen and (width<=1023px){p.caution[data-v-3be39982]{margin-bottom:5px!important}}.btnarea[data-v-3be39982]{text-align:center;width:100%;margin-top:18px}.btnarea input[type=submit][data-v-3be39982]{background:#ce2339;margin-right:10px}.btnarea input[type=button][data-v-3be39982],.btnarea input[type=submit][data-v-3be39982]{text-align:center;color:#fff;border:2px solid #000;width:200px;padding:15px}.btnarea input[type=button][data-v-3be39982]{background:#9e9e9e}@media only screen and (width<=560px){.btnarea input[type=submit][data-v-3be39982]{margin-right:0}.btnarea input[type=button][data-v-3be39982]{margin-top:10px}}#secure[data-v-3be39982]{margin-top:40px;line-height:25.2px}@media only screen and (width<=560px){#secure[data-v-3be39982]{font-size:10px;line-height:16px}}";
+
+const confirmStyles2_Bdis9fj = [
+  confirm_vue_vue_type_style_index_0_scoped_3be39982_inline_used_lang_default
+];
+
+export { confirmStyles2_Bdis9fj as default };
+//# sourceMappingURL=confirm-styles-2.Bdis-9fj.mjs.map

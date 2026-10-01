@@ -1,0 +1,12 @@
+{
+  "name": "entstore-v2-deploy",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo \"Ban build san tu may local - khong can build lai\"",
+    "start": "node .output/server/index.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

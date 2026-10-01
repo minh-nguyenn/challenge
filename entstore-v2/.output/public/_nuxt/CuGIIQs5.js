@@ -1,0 +1,1 @@
+import"#entry";var e=``+new URL(`ban_giftshop.BsSBX_2B.webp`,import.meta.url).href,t=``+new URL(`ban_recipe.Bcxyqhpe.webp`,import.meta.url).href;export{e as n,t};

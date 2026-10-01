@@ -1,0 +1,21 @@
+import{L as e,_ as t,d as n,m as r,t as i,v as a,y as o}from"./D9xJr2Zl.js";import{c as s}from"#entry";import{t as c}from"./BXa1aKUa.js";import{t as l}from"./6x37F6G9.js";import{t as u}from"./GqDuoA3I.js";``+new URL(`no1.6QuTZNx4.webp`,import.meta.url).href,``+new URL(`no2.CSUuAJr_.webp`,import.meta.url).href,``+new URL(`no3.BmHHQZ8J.webp`,import.meta.url).href,``+new URL(`no5.BTVmvxPu.webp`,import.meta.url).href,``+new URL(`no6.BcjCl0U3.webp`,import.meta.url).href,``+new URL(`no7.CkNOghcm.webp`,import.meta.url).href,``+new URL(`no8.BjaS-Pu1.webp`,import.meta.url).href,``+new URL(`no9.D-gr5nSI.webp`,import.meta.url).href;var d={components:{AppButtonNavigation:l,AppArticle:u},data(){return{breadcrumbItems:[{text:`ホーム`,disabled:!1,href:`/`},{text:`会社情報`,disabled:!1,href:`/company`},{text:`環境への取り組み`,disabled:!1,href:`/company/green`},{text:`食品リサイクル`,disabled:!0}]}},setup(){s({title:`食品リサイクル｜環境への取り組み｜会社情報｜遠鉄ストア`})}},f={class:`wrap-content`};function p(i,s,d,p,m,h){let g=c,_=u,v=l;return e(),r(`div`,f,[n(`main`,null,[o(g,{items:m.breadcrumbItems,divider:`>`},null,8,[`items`]),s[0]||=t(` <h2 data-v-80d54333>食品リサイクル</h2> <p class="lead d-none-mobile" data-v-80d54333>遠鉄ストアでは㈱青空農園と共同で、<br data-v-80d54333>「食品残渣リサイクルによる食品リサイクルループの実現」に取り組んでいます。</p> <p class="d-none-des mobile-box lead-mobile" data-v-80d54333>遠鉄ストアでは㈱青空農園と共同で、「食品残渣リサイクルによる食品リサイクルループの実現」に取り組んでいます。</p> <div class="food-wrapper" data-v-80d54333><img class="food-image--single" src="`+new URL(`no1.6QuTZNx4.webp`,import.meta.url).href+`" alt="食品リサイクルループの概要イメージ図" data-v-80d54333> <p class="d-none-mobile" data-v-80d54333>
+              食品リサイクルループの概要イメージ図
+          </p></div> `,9),o(_,{title:`1.発酵分解装置による食品残渣の一次発酵物化`,class:`wrap-outside`}),s[1]||=a(),s[2]||=n(`div`,{class:`food-wrapper`},[n(`div`,{class:`food-image--double`},[n(`img`,{src:``+new URL(`no2.CSUuAJr_.webp`,import.meta.url).href,alt:`リサイクル装置はセンターに隣接して設置`}),a(),n(`img`,{src:``+new URL(`no3.BmHHQZ8J.webp`,import.meta.url).href,alt:`食品残渣約600kg/日を投入装置内で回転しながら発酵・分解`})]),a(),n(`p`,null,[a(`
+            ㈱遠鉄ストアプロセスセンターに隣接したリサイクル装置で食品残渣を発酵・分解
+            `),n(`br`),a(`
+            食品残渣(廃棄物) 年間約225ｔを削減（約85％の削減）
+        `)])],-1),s[3]||=a(),o(_,{title:`2.発酵分解装置による食品残渣の一次発酵物化`,class:`wrap-outside`}),s[4]||=a(),s[5]||=n(`div`,{class:`food-wrapper--horizontal`},[n(`img`,{class:`food_image`,src:``+new URL(`no5.BTVmvxPu.webp`,import.meta.url).href,alt:`再生堆肥を使用した有機肥料で育成`}),a(),n(`div`,{class:`description-wrapper`},[n(`p`,null,`
+                  浜松市内のリサイクルセンターで堆肥に再生され、㈱青空農園で再生堆肥を使用した循環農産物を生産
+              `),a(),n(`ul`,{class:`red-box`},[n(`li`,null,`有機肥料の使用によってサイズや密度など、より優良な作物が育ちます`),a(),n(`li`,null,`再生堆肥を使用した有機肥料は通常の化学肥料より安価です`)])])],-1),s[6]||=a(),o(_,{title:`3.循環農産物の販売`,class:`wrap-outside`}),s[7]||=t(` <div class="food-wrapper" data-v-80d54333><div class="food-image--double" data-v-80d54333><img src="`+new URL(`no6.BcjCl0U3.webp`,import.meta.url).href+`" alt="遠鉄ストア富塚店店頭" data-v-80d54333> <img src="`+new URL(`no7.CkNOghcm.webp`,import.meta.url).href+`" alt="遠鉄ストア富塚店店頭" data-v-80d54333></div> <p data-v-80d54333>
+            (株)遠鉄ストアの店頭で新鮮でおいしい地元産の野菜として、地域の食卓へ
+        </p> <div class="food-chart" data-v-80d54333><p data-v-80d54333>
+                浜松市内事業者の連携により、<br class="d-none-des" data-v-80d54333>全工程を浜松市内とする
+                <br data-v-80d54333>
+                安定的な食品リサイクルループを実現しています
+            </p> <img src="`+new URL(`no8.BjaS-Pu1.webp`,import.meta.url).href+`" alt="地域社会への貢献" data-v-80d54333></div> <div class="group-photo" data-v-80d54333><img src="`+new URL(`no9.D-gr5nSI.webp`,import.meta.url).href+`" alt="「浜松市3R推進優良事業者表彰制度」の優良事業者として認定を受けました。" data-v-80d54333> <p data-v-80d54333>
+                2025年1月30日
+                <br data-v-80d54333>
+                「浜松市3R推進優良事業者表彰制度」
+                <br data-v-80d54333>
+                の優良事業者として認定を受けました。
+            </p></div></div> `,3),o(v,{class:`d-none-mobile`,title:`前のページへ戻る`,"is-back":``,href:`/company/green`})])])}var m=i(d,[[`render`,p],[`__scopeId`,`data-v-80d54333`]]);export{m as default};
