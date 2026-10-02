@@ -35,7 +35,13 @@
               cùng chữ 「材料」 nên nhìn như hai nút trùng nhau.
             -->
             <div class="rd-buy">
-              <p class="rd-buy-label">材料をまとめて：</p>
+              <p class="rd-buy-label">
+                材料をまとめて：
+                <span v-if="cost" class="rd-buy-cost">
+                  材料費 約{{ yen(cost.total) }}円<small>（税込）</small>
+                  <span class="rd-badge-demo sm">DEMO</span>
+                </span>
+              </p>
               <div class="rd-buy-btns">
                 <button
                   type="button"
@@ -126,20 +132,48 @@
                   <span class="rd-ing-name">{{ it.name }}</span>
                   <span class="rd-ing-amt">{{ it.amount }}</span>
                 </label>
-                <span v-if="priceOf(it.name)" class="rd-ing-price">
+                <!-- Giá gồm thuế, cùng cách tính với 「材料費 概算」 ở trang tìm kiếm -->
+                <span v-if="ingOf(it.name)?.priceIn != null" class="rd-ing-price">
                   <span class="rd-badge-demo sm">DEMO</span>
-                  <template v-if="promoOf(it.name)">
-                    <s>{{ promoOf(it.name).normalPrice }}円</s>
-                    <strong class="rd-sale">{{ promoOf(it.name).salePrice }}円</strong>
+                  <template v-if="ingOf(it.name).saleIn != null">
+                    <s>{{ yen(ingOf(it.name).priceIn) }}円</s>
+                    <strong class="rd-sale">{{ yen(ingOf(it.name).saleIn) }}円</strong>
                     <em class="rd-off">🔥特売中 {{ promoOf(it.name).discountPercent }}%OFF</em>
                   </template>
                   <template v-else>
-                    <strong>{{ priceOf(it.name).price }}円</strong>
+                    <strong>{{ yen(ingOf(it.name).priceIn) }}円</strong>
                     <em>{{ priceOf(it.name).unit }}</em>
                   </template>
                 </span>
+                <span v-else class="rd-ing-price rd-ing-noprice">価格データなし</span>
               </li>
             </ul>
+          </div>
+
+          <!-- Tổng tiền nguyên liệu -->
+          <div v-if="cost" class="rd-total">
+            <p class="rd-total-head">
+              材料費の合計 <small>（概算・税込）</small>
+              <span class="rd-badge-demo sm">DEMO</span>
+            </p>
+            <p class="rd-total-sum"><strong>{{ yen(cost.total) }}</strong>円</p>
+            <p v-if="cost.saleTotal < cost.total" class="rd-total-sale">
+              🔥 特売を使うと <strong>{{ yen(cost.saleTotal) }}円</strong>
+              <span>（{{ yen(cost.total - cost.saleTotal) }}円お得）</span>
+            </p>
+            <ClientOnly>
+              <p v-if="selected" class="rd-total-sel">
+                ✓ 選択中の材料 {{ selected.count }}品：<strong>{{ yen(selected.sum) }}円</strong>
+                <span v-if="selected.onSale">（特売適用後）</span>
+              </p>
+            </ClientOnly>
+            <p class="rd-total-note">
+              ※ 各材料を1つずつ購入した場合の目安です。
+              <template v-if="cost.count > cost.matched">
+                価格データのない材料（{{ cost.count - cost.matched }}品）は1品{{ cost.fallback }}円で計算しています。
+              </template>
+              価格はデモ用の仮データです。
+            </p>
           </div>
         </section>
 
@@ -373,6 +407,26 @@ function priceOf(name) {
 function promoOf(name) {
   return data.value?.ingredients?.find((i) => i.cleanName === name)?.promo || null
 }
+/** Nguyen lieu da kem gia gom thue (priceIn) va gia KM gom thue (saleIn) tu API */
+function ingOf(name) {
+  return data.value?.ingredients?.find((i) => i.cleanName === name) || null
+}
+
+const yen = (n) => Number(n || 0).toLocaleString('ja-JP')
+
+/**
+ * Tong tien. Con so chinh = `cost.total` tinh o server, giong het 「材料費 概算」
+ * o trang tim kiem. Neu khach tich chon mot so nguyen lieu (de chi mua phan
+ * con thieu) thi tinh them tam tinh cho phan da chon, da tru KM.
+ */
+const cost = computed(() => data.value?.cost || null)
+const selected = computed(() => {
+  if (!checked.value.length || !data.value) return null
+  const items = checked.value.map((n) => ingOf(n)).filter(Boolean)
+  const fallback = cost.value?.fallback || 0
+  const sum = items.reduce((s, i) => s + (i.saleIn ?? i.priceIn ?? fallback), 0)
+  return { count: items.length, sum, onSale: items.some((i) => i.saleIn != null) }
+})
 
 // --- AI đọc công thức bằng Web Speech (ja-JP) ---
 const speaking = ref(false)
@@ -507,10 +561,80 @@ useHead(() => ({
 }
 
 .rd-buy-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 10px;
   margin: 0 0 8px;
   font-size: 12px;
   font-weight: bold;
   color: #331e0e;
+}
+.rd-buy-cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #c7273b;
+
+  small { font-size: 10px; color: #8a7c6a; font-weight: normal; }
+}
+
+.rd-ing-noprice {
+  font-size: 11px;
+  color: #b3a795;
+}
+
+/* Hộp tổng tiền nguyên liệu, cuối danh sách nguyên liệu */
+.rd-total {
+  margin-top: 6px;
+  padding: 14px 16px;
+  border: 2px solid #331e0e;
+  border-radius: 8px;
+  background: #fffaf0;
+
+  p { margin: 0; }
+}
+.rd-total-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #331e0e;
+
+  small { font-weight: normal; color: #8a7c6a; font-size: 11px; }
+}
+.rd-total-sum {
+  margin-top: 2px !important;
+  font-size: 15px;
+  color: #331e0e;
+
+  strong { font-size: 28px; letter-spacing: 0.5px; }
+}
+.rd-total-sale {
+  font-size: 13px;
+  color: #c7273b;
+
+  strong { font-size: 16px; }
+  span { color: #8a7c6a; font-size: 12px; }
+}
+.rd-total-sel {
+  margin-top: 6px !important;
+  padding-top: 6px;
+  border-top: 1px dashed #d9cdb8;
+  font-size: 13px;
+  color: #1d7a45;
+
+  strong { font-size: 16px; }
+  span { color: #8a7c6a; font-size: 11px; }
+}
+.rd-total-note {
+  margin-top: 8px !important;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #8a7c6a;
 }
 
 .rd-buy-btns {

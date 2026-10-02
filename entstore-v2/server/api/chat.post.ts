@@ -12,6 +12,7 @@ import {
   stripLatinMarks,
 } from '~~/shared/chat-lang.mjs'
 import { detectBudget, stripBudget } from '~~/shared/budget.mjs'
+import { detectIntent as detectTopic } from '~~/shared/search-intent.mjs'
 
 /**
  * Hiểu Ý ĐỊNH của câu hỏi, không chỉ tìm từ khoá.
@@ -852,6 +853,33 @@ function retrieve(question, intent, filters, limit = 8) {
   const noKeyword = (rest) => !rest || !looksLikeKeyword(all, rest, toJapaneseKeywords(rest));
   const genericOnly = filters.genericOnly || noKeyword(filters.residual);
   const budgetOnly = filters.budgetOnly || noKeyword(filters.budgetRest);
+
+  // Câu theo Ý ĐỊNH (「trưa nay ăn gì」「các món ăn mùa thu」「đặc sản hokkaido」):
+  // dùng chung bộ từ khoá với trang tìm kiếm. Trước đây rơi vào nhánh "không có
+  // từ khoá" và trả về 997 công thức bất kỳ. Lấy xen kẽ từng từ khoá để gợi ý
+  // đa dạng (丼 → うどん → パスタ…), không bị một loại chiếm hết.
+  const topic = detectTopic(question);
+  if (topic && (topic.kind === 'region' || genericOnly || noKeyword(question))) {
+    const lists = topic.terms.map((w) =>
+      search(pool, w, { limit: limit * 2, perGroup: limit * 2, types: topic.types || undefined }).items
+        .filter((d) => d.type !== 'product')
+    );
+    const seen = new Set();
+    const mixed = [];
+    for (let i = 0; mixed.length < limit * 3 && lists.some((l) => l[i]); i++) {
+      for (const l of lists) {
+        const d = l[i];
+        if (d && !seen.has(d.id)) {
+          seen.add(d.id);
+          mixed.push({ ...d, score: 100 - i });
+        }
+      }
+    }
+    // Hỏi đặc sản là hỏi MÓN ĂN: đưa công thức/特売 lên trước bài khuyến mãi
+    const rank = (d) => (d.type === 'recipe' ? 0 : d.type === 'promo' ? 1 : 2);
+    if (topic.kind === 'specialty' || topic.kind === 'region') mixed.sort((a, b) => rank(a) - rank(b));
+    if (mixed.length) return applyFilters(mixed, filters, all, { budgetOnly })
+  }
 
   if (genericOnly && wantGroups?.includes('recipe')) {
     const allRecipes = pool.filter((d) => d.type === 'recipe');

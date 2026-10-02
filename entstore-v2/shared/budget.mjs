@@ -139,7 +139,7 @@ export function detectBudget(text) {
  * 「キユーピー 具だくさん和風タルタル」) không có giá. Bỏ qua chúng thì món nào
  * nhiều hàng hiệu sẽ rẻ giả tạo, nên gán một giá trung vị để ước tính ổn định.
  */
-const FALLBACK_PRICE = 198
+export const FALLBACK_PRICE = 198
 
 /**
  * Ước tính chi phí nguyên liệu của một món.

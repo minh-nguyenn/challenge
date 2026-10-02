@@ -23,6 +23,11 @@
             🌐 「{{ q }}」を「{{ data.translatedFrom.join('・') }}」として検索しました。
           </p>
 
+          <!-- Câu hỏi theo ý định (bữa trưa / theo mùa / đặc sản) — nói rõ đã hiểu thành gì -->
+          <p v-if="data?.intent" class="sr-note sr-note-lang">
+            💡 「{{ q }}」を「{{ data.intent.label }}」として探しました：{{ data.intent.terms.join('・') }}
+          </p>
+
           <!-- Đang lọc theo ngân sách -->
           <p v-if="data?.budget" class="sr-note sr-note-budget">
             💰 <strong>{{ budgetLabel }}</strong> で絞り込みました。

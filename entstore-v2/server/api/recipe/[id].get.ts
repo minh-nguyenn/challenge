@@ -2,6 +2,14 @@
 // dinh duong that (Kitchen365) neu co, va cac mon lien quan.
 import { uribaOf, groupByUriba } from '~~/shared/uriba.mjs'
 import { search } from '~~/shared/search-engine.mjs'
+import { FALLBACK_PRICE } from '~~/shared/budget.mjs'
+
+/**
+ * Gia GOM THUE — cung cach tinh 「材料費 概算」 o trang tim kiem
+ * (estimateRecipeCost), de tong tien o trang cong thuc khop dung con so khach
+ * vua thay khi tim 「2000円で何が作れる？」.
+ */
+const taxIn = (p: any) => Number(p?.taxIncluded || p?.price || 0)
 
 // Chi tinh 4 quay nguyen lieu chinh — gia vi thi mon nao cung co, khong noi len dieu gi
 const MAIN = new Set(['seika', 'sengyo', 'seiniku', 'nippai'])
@@ -111,14 +119,36 @@ export default defineEventHandler((event) => {
       .replace(/^[A-Za-z][）)．.、,]\s*/, '')
       .replace(/[（(].*?[）)]/g, '')
       .trim()
+    const product = productByName.get(clean) || null
+    const promo = promoByName.get(clean) || null
+    const priceIn = product ? taxIn(product) : null
     return {
       ...ing,
       cleanName: clean,
       uriba: uribaOf(clean),
-      product: productByName.get(clean) || null,
-      promo: promoByName.get(clean) || null,
+      product,
+      promo,
+      priceIn,
+      // Gia KM trong du lieu la gia chua thue -> doi sang gom thue theo dung ti le cua san pham
+      saleIn:
+        product && promo
+          ? Math.round((Number(promo.salePrice) * priceIn!) / Number(product.price || promo.normalPrice || priceIn))
+          : null,
     }
   })
+
+  // Tong tien nguyen lieu: mua moi thu 1 goi/1 phan. Nguyen lieu khong co gia
+  // (hang hieu...) tinh FALLBACK_PRICE nhu trang tim kiem.
+  const priced = enriched.filter((i: any) => i.priceIn != null)
+  const total = priced.reduce((s: number, i: any) => s + i.priceIn, 0) + (enriched.length - priced.length) * FALLBACK_PRICE
+  const saving = priced.reduce((s: number, i: any) => s + (i.saleIn != null ? i.priceIn - i.saleIn : 0), 0)
+  const cost = {
+    total,
+    saleTotal: total - saving,
+    matched: priced.length,
+    count: enriched.length,
+    fallback: FALLBACK_PRICE,
+  }
 
   return {
     id,
@@ -131,6 +161,7 @@ export default defineEventHandler((event) => {
     steps: doc.steps || [],
     point: doc.point || '',
     ingredients: enriched,
+    cost,
     // Nhóm theo quầy — dùng cho danh sách đi chợ và highlight sơ đồ 売場
     byUriba: groupByUriba(enriched.map((i: any) => ({ name: i.cleanName, amount: i.amount }))),
     // Ưu tiên dinh dưỡng THẬT từ Kitchen365; chỉ dùng số DEMO khi không có.

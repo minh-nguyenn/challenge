@@ -4,6 +4,7 @@ import { search } from '~~/shared/search-engine.mjs'
 import { normalizeJa } from '~~/shared/jp-text.mjs'
 import { toJapaneseKeywords } from '~~/shared/chat-lang.mjs'
 import { detectBudget, stripBudget } from '~~/shared/budget.mjs'
+import { detectIntent } from '~~/shared/search-intent.mjs'
 import { GROUP_LABEL, GROUP_ORDER, looksLikeKeyword } from '~~/shared/search-engine.mjs'
 
 /**
@@ -84,6 +85,7 @@ export default defineEventHandler((event) => {
     generic || !looksLikeKeyword(all, rest, toJapaneseKeywords(rest))
 
   let budgetInfo: any = null
+  let intent: any = null
   let result: any
 
   if (budget && noKeyword) {
@@ -105,6 +107,23 @@ export default defineEventHandler((event) => {
       if (!extra.total) continue
       translatedFrom.push(w)
       result = mergeResults(result, extra, perGroup)
+    }
+
+    // 2b. Y DINH — 「trưa nay ăn gì」「các món ăn mùa thu」「đặc sản hokkaido」
+    // 「秋の料理」 khong chua ten tai lieu nao nen ra 0 ket qua. Khi cau hoi khong
+    // phai tu khoa that, doi y dinh ra nhom tu khoa co trong du lieu roi tim them.
+    // Cau co tu khoa that (「秋鮭」「北海道」) thi giu nguyen, khong chen them —
+    // tru ten vung go chu Latin (「hokkaido」 chi khop vai bai 「HOKKAIDO」).
+    const it = detectIntent(termForSearch)
+    if (it && (it.kind === 'region' || !result.total || !looksLikeKeyword(all, termForSearch, jaWords))) {
+      const used: string[] = []
+      for (const w of it.terms) {
+        const extra = search(all, w, { perGroup, types: it.types || SEARCH_GROUPS })
+        if (!extra.total) continue
+        used.push(w)
+        result = mergeResults(result, extra, perGroup)
+      }
+      if (used.length) intent = { kind: it.kind, label: it.label, terms: used }
     }
 
     // 3. LOC THEO GIA — mon an tinh theo chi phi nguyen lieu uoc tinh,
@@ -148,6 +167,7 @@ export default defineEventHandler((event) => {
     ...result,
     budget: budgetInfo,
     translatedFrom: translatedFrom.length ? translatedFrom : null,
+    intent,
     nearbyShops: shops.length ? { product: topProduct, items: shops, located: Number.isFinite(lat) } : null,
   }
 })
