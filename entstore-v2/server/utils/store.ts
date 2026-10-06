@@ -10,7 +10,7 @@ import { SHOP_LIST } from '~~/app/config/shop-data.js'
 import { estimateRecipeCost } from '~~/shared/budget.mjs'
 
 let cache: any = null
-let cacheStamp = 0
+let cacheStamp = ''
 
 /**
  * Dau van tay cho cache: mtime cua index CONG mtime cua file khuyen mai.
@@ -20,10 +20,13 @@ let cacheStamp = 0
  * du lieu cu cho toi khi khoi dong lai server.
  */
 function dataStamp() {
-  let stamp = 0
+  // Kem SO NGAY hom nay: server tren Render chay lien tuc nhieu tuan
+  // (UptimeRobot giu thuc). Neu chi doi theo file thi ngay khuyen mai chi duoc
+  // dich MOT lan luc khoi dong -> khoang 10 ngay sau moi 特売 deu het han.
+  let stamp = `${Math.floor(Date.now() / DAY)}`
   for (const file of ['search-index.json', 'demo-promos.json']) {
     const p = resolveDataFile(file)
-    if (p) stamp += fs.statSync(p).mtimeMs
+    if (p) stamp += `:${fs.statSync(p).mtimeMs}`
   }
   return stamp
 }

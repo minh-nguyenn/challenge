@@ -170,6 +170,9 @@ const KEYWORD_MAP = {
   'cá hồi': '鮭', 'salmon': '鮭', '三文鱼': '鮭', '연어': '鮭',
   'đậu hũ': '豆腐', 'nấm': 'きのこ', 'mushroom': 'きのこ', '蘑菇': 'きのこ', '버섯': 'きのこ',
 
+  // Go kana chua doi sang chu Han (IME) — 「りょうり」 truoc day ra 0 ket qua
+  'りょうり': '料理', 'りょり': '料理', 'こんだて': '献立',
+
   // cửa hàng / dịch vụ
   'cửa hàng': '店舗', 'cua hang': '店舗', 'store': '店舗', 'shop': '店舗',
   '门店': '店舗', '매장': '店舗', 'ร้าน': '店舗',

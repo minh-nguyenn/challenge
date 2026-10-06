@@ -25,7 +25,15 @@ export function cleanIngredientName(name) {
 }
 
 /** Đơn vị tiền tệ người dùng có thể gõ, ở 6 ngôn ngữ */
-const YEN_WORD = '(?:円|yen|yên|en|엔|日元|元|บาท|¥)'
+// 「えん/エン」: khach go bang ban phim kana ma khong doi sang chu Han (「２０００えん」)
+const YEN_WORD = '(?:円|えん|エン|yen|yên|en|엔|日元|元|บาท|¥)'
+
+/**
+ * Dua ve dang chuan truoc khi doc so tien: so TOAN GOC 「２０００」 -> 「2000」,
+ * 「￥」 -> 「¥」. Go tieng Nhat bang IME rat hay ra so toan goc; truoc day
+ * 「２０００円以内」 khong nhan ra ngan sach nao.
+ */
+const normalizeBudgetText = (t) => String(t || '').normalize('NFKC')
 
 /** "tối đa / trong vòng" — 2000円以内 */
 const UNDER_WORD =
@@ -58,7 +66,7 @@ const toNumber = (s) => Number(String(s).replace(/[,.\s]/g, ''))
  *   món trong tầm giá 2000 yên -> { min: 0, max: 2000, kind: 'under' }
  */
 export function detectBudget(text) {
-  const s = String(text || '')
+  const s = normalizeBudgetText(text)
   if (!s) return null
 
   // Số tiền phải có ít nhất 2 chữ số để không bắt nhầm "3 người ăn", "15 phút"
@@ -190,7 +198,8 @@ export function estimateRecipeCost(ingredients, productByName) {
  * để lọt 「菜」 thì 「白菜」 hỏng theo.
  */
 const GENERIC_CJK = [
-  '料理', 'レシピ', '御飯', 'ご飯', 'ごはん', '食事', 'メニュー', 'もの', '作れる', '作る',
+  // 「りょうり」「りょり」: go kana chua doi chu Han, hoac go thieu 「う」
+  '料理', 'りょうり', 'りょり', 'レシピ', '御飯', 'ご飯', 'ごはん', '食事', 'メニュー', 'もの', '作れる', '作る',
   '菜谱', '食谱', '요리', '음식', 'อาหาร', 'สูตร',
   // Lời nhờ vả — không phải từ khoá. Thiếu nhóm này thì
   // 「1000円以下の料理を教えて」 còn lại chữ 「教えて」, bị coi là có từ khoá,
@@ -233,7 +242,8 @@ const GENERIC_LATIN = [
  * 「2000円以内のカレー」    -> { rest: 'カレー', generic: false }  (chỉ món cà ri)
  */
 export function stripBudget(text, budget) {
-  let rest = String(text || '')
+  // Cung chuan hoa nhu detectBudget, de budget.match (lay tu chuoi da chuan hoa) cat duoc
+  let rest = normalizeBudgetText(text)
   if (budget?.match) rest = rest.replace(budget.match, ' ')
 
   // Bỏ trợ từ dính lại ở mép và các từ "món ăn" chung chung
