@@ -1,0 +1,9 @@
+//#region app/components/App/Article.vue?vue&type=style&index=0&scoped=a7db74bd&inline&used&lang.scss
+var Article_vue_vue_type_style_index_0_scoped_a7db74bd_inline_used_lang_default = ".singleColumn[data-v-a7db74bd]{margin-bottom:69px;overflow:hidden}.singleColumn .title-article[data-v-a7db74bd]{box-sizing:border-box;color:#fff;text-align:left;background:#331e0e;border-left:5px solid #2a180b;margin-bottom:0;padding:8px 12px;font-size:22px;font-weight:400;overflow:hidden;line-height:30px!important}@media only screen and (width<=560px){.singleColumn .title-article[data-v-a7db74bd]{padding:15px 10px;line-height:25.2px}.singleColumn .title-article a[data-v-a7db74bd]{line-height:1!important}.singleColumn .title-article.link[data-v-a7db74bd]:hover{opacity:.8}}@media only screen and (width<=1023px){.singleColumn .title-article[data-v-a7db74bd]{font-size:18px}}@media only screen and (width>=1024px){.singleColumn .title-article[data-v-a7db74bd]{border-bottom:none;margin-bottom:20px}}.singleColumn .title-article a[data-v-a7db74bd]{color:#fff;background:url(data:image/webp;base64,UklGRrgAAABXRUJQVlA4WAoAAAAQAAAACQAADgAAQUxQSHcAAAABgJpt27LsxjVykFyiNyqNxgqs4DCCk3wDaESadqguv7u73uH9hoiICUisCjJInpNdg0TkihyaBfiX5NwjwDIhj8ICjF3yMSZAXv/lT1wA+uSTRP6VzACQ1cjPOABjj7yNArBMyU0IgHdBzhwAsCEHJojls44GkgBWUDggGgAAADABAJ0BKgoADwAAAAAlpAADcAD+/97c8AAA) 98% no-repeat;padding:0;line-height:30px;display:block}.singleColumn .title-article a.down-lineHeight[data-v-a7db74bd]{padding:5px 0;line-height:17px}.singleColumn .article-content[data-v-a7db74bd]{font-size:14px}.art-gps[data-v-a7db74bd],.singleColumn.art-gps[data-v-a7db74bd]{margin-bottom:30px}";
+
+const ArticleStyles_ip9iL7c1 = [
+  Article_vue_vue_type_style_index_0_scoped_a7db74bd_inline_used_lang_default
+];
+
+export { ArticleStyles_ip9iL7c1 as default };
+//# sourceMappingURL=Article-styles.ip9iL7c1.mjs.map

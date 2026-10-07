@@ -1,0 +1,9 @@
+//#region app/components/Special/CollapseItem.vue?vue&type=style&index=0&scoped=ae56e322&inline&used&lang.scss
+var CollapseItem_vue_vue_type_style_index_0_scoped_ae56e322_inline_used_lang_default = ".collapse-enter-active[data-v-ae56e322],.collapse-leave-active[data-v-ae56e322]{transition:height .5s ease-in-out,padding-top .3s ease-in-out,padding-bottom .3s ease-in-out,opacity .5s ease-in-out,margin-top .3s ease-in-out}.icon-enter-active[data-v-ae56e322],.icon-leave-active[data-v-ae56e322]{transition:opacity .5s ease-in-out}.icon-enter[data-v-ae56e322],.icon-leave-to[data-v-ae56e322]{opacity:0;right:0}.el-collapse-item .el-collapse-item__header[data-v-ae56e322]{letter-spacing:.54px;cursor:pointer;color:#cf2339;background-color:#cf23391a;border-radius:8px;height:auto;padding:16px 30px 16px 18px;font-size:18px;font-weight:700;line-height:normal;transition:opacity .3s;position:relative}.el-collapse-item .el-collapse-item__header i[data-v-ae56e322]{position:absolute;right:18px}@media (hover:hover){.el-collapse-item .el-collapse-item__header[data-v-ae56e322]:hover{opacity:.6!important}}.el-collapse-item .el-collapse-item__header .el-collapse-item__arrow[data-v-ae56e322]{color:#cf2339;width:16px;height:16px;margin:0 0 0 auto;font-size:16px;font-weight:600}.el-collapse-item .el-collapse-item__wrap[data-v-ae56e322]{background-color:#0000;border:none}.el-collapse-item .el-collapse-item__wrap .el-collapse-item__content[data-v-ae56e322]{padding-bottom:0}@media screen and (width<=600px){.el-collapse-item .el-collapse-item__header[data-v-ae56e322]{letter-spacing:.42px;height:auto;padding:16px 22px 16px 18px;font-size:14px;line-height:26px}.el-collapse-item .el-collapse-item__header i[data-v-ae56e322]{right:16px}}";
+
+const CollapseItemStyles_C7n3GDhp = [
+  CollapseItem_vue_vue_type_style_index_0_scoped_ae56e322_inline_used_lang_default
+];
+
+export { CollapseItemStyles_C7n3GDhp as default };
+//# sourceMappingURL=CollapseItem-styles.C7n3GDhp.mjs.map

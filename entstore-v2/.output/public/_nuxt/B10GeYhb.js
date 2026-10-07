@@ -1,0 +1,1 @@
+function e(e){let t={},n=Array.isArray(e)?e:Object.keys(e);for(let e of n)t[e]=function(){return this.$store.getters[e]||{}};return t}export{e as t};

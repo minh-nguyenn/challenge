@@ -1,0 +1,7 @@
+import{B as e,L as t,d as n,f as r,i,m as a,t as o,v as s,y as c}from"./D9xJr2Zl.js";import{c as l}from"#entry";import{t as u}from"./BXa1aKUa.js";import{t as d}from"./6x37F6G9.js";import{t as f}from"./FmLbFSNT.js";var p={components:{AppButtonNavigation:d,ProductItem:f},data(){return{breadcrumbItems:[{text:`ホーム`,disabled:!1,href:`/`},{text:`会社情報`,disabled:!1,href:`/company`},{text:`環境への取り組み`,disabled:!0,href:`/company/company`}],services:[{to:`/company/green/recycle`,imgAlt:`資源回収`,url:`/assets/images/photo01 (47).webp`,title:`資源回収`},{to:`/company/green/eco`,imgAlt:`エコトレー`,url:`/assets/images/photo03 (33).webp`,title:`エコトレー`},{to:`/company/green/food`,imgAlt:`食品リサイクル`,url:`/assets/images/company/green/logo_food.webp`,title:`食品リサイクル`}]}},setup(){l({title:`環境への取り組み｜会社情報｜遠鉄ストア`})}},m={class:`wrap-content`},h={class:`product-list`};function g(o,l,p,g,_,v){let y=u,b=f,x=d;return t(),a(`div`,m,[n(`main`,null,[c(y,{items:_.breadcrumbItems,divider:`>`},null,8,[`items`]),l[0]||=s(),l[1]||=n(`h2`,null,`環境への取り組み`,-1),l[2]||=s(),l[3]||=n(`p`,{class:`lead`},[s(`
+        私たちは牛乳パックやトレイの回収、
+        `),n(`br`),s(`
+        簡易包装の推進、物流システムの効率化にと、
+        `),n(`br`),s(`
+        エコロジー問題や省資源問題に積極的に取り組んでいます。
+      `)],-1),l[4]||=s(),n(`div`,h,[(t(!0),a(i,null,e(_.services,(e,n)=>(t(),r(b,{key:n,service:e},null,8,[`service`]))),128))]),l[5]||=s(),c(x,{class:`d-none-mobile`,title:`前のページへ戻る`,"is-back":``,href:`/company`})])])}var _=o(p,[[`render`,g],[`__scopeId`,`data-v-64045352`]]);export{_ as default};

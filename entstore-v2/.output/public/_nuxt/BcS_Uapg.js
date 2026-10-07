@@ -1,0 +1,1 @@
+import{a as e}from"./C7D70s2F.js";import{d as t,p as n,r}from"#entry";function i(){let i=n();return{query:i.query,params:i.params,route:i,$microcms:r(),$config:e().public,app:{},error:e=>t({statusCode:e?.statusCode||500,statusMessage:e?.message||`Loi`})}}export{i as t};
