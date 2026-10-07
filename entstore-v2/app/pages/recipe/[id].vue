@@ -303,6 +303,21 @@ const { data } = await useAsyncData(`recipe:${id}`, () =>
   $fetch(`/api/recipe/${id}`).catch(() => null)
 )
 
+/*
+  Món site CHƯA có nội dung — món mới đăng lên CMS sau lần dựng chỉ mục, hoặc
+  món chỉ có link — thì không để khách gặp trang trống: tra CMS rồi chuyển về
+  đúng chỗ site gốc vẫn dẫn tới (trang lưu trữ trong site, hoặc Kitchen365).
+  Chạy cả lúc render phía server nên khách nhận thẳng lệnh chuyển trang 302.
+*/
+const hasContent = (d) => !!(d && (d.ingredients?.length || d.steps?.length))
+if (!hasContent(data.value)) {
+  const cms = await $fetch('/api/cms', { params: { endpoint: 'store-recipes', contentId: id } }).catch(() => null)
+  // Chỉ nhận link http(s) thật: CMS có món ghi target_url = "c" (nhập lỗi)
+  const url = [cms?.target_url, data.value?.externalUrl].find((u) => /^https?:\/\//.test(u || ''))
+  const fallback = cms?.archive?.length ? `/service/recipe/archive/detail/${id}` : url || ''
+  if (fallback) await navigateTo(fallback, { external: /^https?:/.test(fallback), redirectCode: 302 })
+}
+
 const breadcrumbItems = computed(() => [
   { text: 'ホーム', disabled: false, href: '/' },
   { text: 'レシピ集', disabled: false, href: '/service/recipe/' },

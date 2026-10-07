@@ -89,8 +89,8 @@
         <section v-for="(recipe, index) in recipeList" :key="index"
           :style="index === 1 ? 'background-color: #f5f1e8;' : ''" class="recipeList">
           <span v-if="checkRecipeNew(recipe.open_start)" class="new">new</span>
-          <a target="_blank"
-            :href="recipe.archive && recipe.archive.length > 0 ? `/service/recipe/archive/detail/${recipe.id}` : `${recipe.target_url}`">
+          <!-- Mở trang chi tiết trong site, giống thẻ ở レシピ集 (components/RecipeBox.vue) -->
+          <a :href="`/recipe/${recipe.id}`">
             <figure>
               <img v-if="recipe.filename1 && recipe.filename1.url" :src="$appendWebpFormat(recipe.filename1.url)"
                 class="fullImage">

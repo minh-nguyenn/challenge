@@ -294,6 +294,50 @@ export function toJapaneseKeywords(text) {
 
 
 /**
+ * Tu ngoai ngu DANG GO DO -> tu tieng Nhat, cho goi y khi go.
+ *
+ * toJapaneseKeywords chi khop TU DAY DU: go 「cà r」 hay 「cur」 thi chua ra gi.
+ * O day khop theo TIEN TO: 「cà r」 -> cà ri (カレー), cà rốt (にんじん);
+ * 「cur」 -> curry (カレー); 「카」 -> 카레 (カレー). Moi tu tieng Nhat chi lay
+ * mot lan, uu tien tu khop khit roi den tu ngan.
+ *
+ * @returns {{ from: string, to: string }[]}
+ */
+export function keywordPrefixMatches(text, extra = {}, limit = 4) {
+  const raw = String(text || '').toLowerCase().trim()
+  if (!raw) return []
+  const loose = stripLatinMarks(raw).replace(/\s+/g, ' ')
+  const isLatin = /^[a-z0-9\s'-]+$/.test(loose)
+  // 1 chu Latin thi qua nhieu tu khop, chua co nghia de goi y
+  if (isLatin && loose.replace(/\s/g, '').length < 2) return []
+
+  const hits = []
+  for (const [k, v] of Object.entries({ ...KEYWORD_MAP, ...extra })) {
+    if (v === 'なんでも検索' || k === v) continue
+    const kl = k.toLowerCase()
+    let ok = false
+    if (isLatin) {
+      const kk = stripLatinMarks(kl)
+      // Go khong dau thi khop moi tu; da go co dau (「cà」) thi dau phai trung,
+      // de 「cà」 khong ra 「cá」/「cart」, 「tôm」 khong ra 「tomato」
+      ok = kk.startsWith(loose) && (raw === loose || kl.startsWith(raw))
+    } else {
+      ok = kl.startsWith(raw) || raw.includes(kl)
+    }
+    if (ok) hits.push({ from: k, to: v, exact: stripLatinMarks(kl) === loose || kl === raw })
+  }
+
+  const seen = new Set()
+  return hits
+    .sort((a, b) => Number(b.exact) - Number(a.exact) || a.from.length - b.from.length)
+    .filter((h) => (seen.has(h.to) ? false : (seen.add(h.to), true)))
+    .slice(0, limit)
+    // NFC: vai tu khoa trong bang luu dau ROI (「cà rốt」 hien thanh 「cà rô´t」)
+    .map(({ from, to }) => ({ from: from.normalize('NFC'), to }))
+}
+
+
+/**
  * Nhận diện câu XÃ GIAO (chào, cảm ơn, tam biet, đồng ý).
  *
  * Cần vì: người dùng mở khung chat thường gõ "chào bạn" trước khi hỏi.

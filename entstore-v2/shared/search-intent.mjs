@@ -12,7 +12,7 @@
 import { stripLatinMarks } from './chat-lang.mjs'
 
 /** Ten vung viet Latin -> tieng Nhat. Dung cho 「đặc sản hokkaido」 「hokkaido specialty」 */
-const REGIONS = {
+export const REGIONS = {
   hokkaido: '北海道', 'bac hai dao': '北海道',
   shizuoka: '静岡', hamamatsu: '浜松', hamanako: '浜名湖', 'ho hamana': '浜名湖',
   enshu: '遠州', okinawa: '沖縄', kyushu: '九州', kagoshima: '鹿児島',

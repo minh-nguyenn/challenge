@@ -263,28 +263,52 @@ export function looksLikeKeyword(docs, term, extraTerms = []) {
  * Gợi ý khi đang gõ (slide 5: "人気ワードもワンタップ").
  * Chỉ trả tiêu đề để danh sách gợi ý nhẹ và hiện nhanh.
  */
-export function suggest(docs, query, limit = 8) {
-  const nq = normalizeJa(query);
-  if (!nq) return []
+export function suggest(docs, query, limit = 8, opts = {}) {
+  // Nhieu "kim" cung luc: chu goc da chuan hoa, ban doi tu romaji, va cac tu
+  // tieng Nhat dich tu ngoai ngu (「cà r」 -> カレー, にんじん). Kim goc xep truoc.
+  const nq = normalizeJa(query)
+  // Chu Latin (「ca」「hokk」) chi khop o DAU TU: khong thi 「ca」 dinh vao
+  // giua 「CoGCa」「EPiCA」 va day goi y that xuong duoi
+  const latin = /^[a-z0-9]+$/.test(nq)
+  const needles = [
+    { n: nq, rank: 0, wordStart: latin },
+    ...(opts.needles || []).map((x) => ({ ...x, n: normalizeJa(x.n), rank: x.rank ?? 1 })),
+  ]
+    // Romaji bo truong am nen bo ca ー o kim: 「kare-」 -> かれ khop かれー
+    .map((x) => (x.loose ? { ...x, n: x.n.replace(/ー/g, '') } : x))
+    .filter((x) => x.n)
+  if (!needles.length) return []
 
   const out = [];
   const seen = new Set();
-  for (const d of docs) {
-    const t = d.normTitle || '';
-    if (!t.includes(nq)) continue
-    const key = d.title;
-    if (seen.has(key)) continue
-    seen.add(key);
-    out.push({
-      title: d.title,
-      type: d.type,
-      group: groupOf(d),
-      label: GROUP_LABEL[groupOf(d)],
-      route: d.route,
-      // tiêu đề bắt đầu bằng từ khoá thì xếp trước
-      _p: t.startsWith(nq) ? 0 : 1,
-    });
-    if (out.length > limit * 4) break
+  for (const nd of needles) {
+    let found = 0
+    for (const d of docs) {
+      const t0 = d.normTitle || '';
+      // Romaji thuong bo truong am: 「ramen」 -> らめ phai khop らーめん
+      const t = nd.loose ? t0.replace(/ー/g, '') : t0
+      const at = t.indexOf(nd.n)
+      if (at < 0) continue
+      // Kim ngan doi tu romaji chi nhan khi tieu de BAT DAU bang no:
+      // 「ramen」 -> らめ khong duoc khop giua 「甘辛がらめ」
+      if (nd.prefixOnly && at !== 0) continue
+      if (nd.wordStart && !new RegExp('(^|[^a-z0-9])' + nd.n).test(t)) continue
+      const key = d.title;
+      if (seen.has(key)) continue
+      seen.add(key);
+      out.push({
+        title: d.title,
+        type: d.type,
+        group: groupOf(d),
+        label: GROUP_LABEL[groupOf(d)],
+        route: d.route,
+        // Ghi chu 「nho tu nao ma ra」 — bo khi tieu de da hien san chu do
+        ...(nd.via && !d.title.includes(nd.via) ? { via: nd.via } : {}),
+        // kim goc truoc; trong cung kim, tieu de BAT DAU bang tu khoa xep truoc
+        _p: nd.rank * 2 + (t.startsWith(nd.n) ? 0 : 1),
+      });
+      if (++found > limit * 4) break
+    }
   }
 
   return out

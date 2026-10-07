@@ -8,7 +8,7 @@
  * Giao diện dùng đúng bảng màu của site gốc (#331e0e nâu, #f3e7cd kem,
  * #c7273b đỏ) để không lạc lõng khi chèn vào trang có sẵn.
  */
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCart } from '~/composables/useCart'
 
@@ -47,26 +47,69 @@ function getSeasonBanner() {
   return { emoji: '🌸', title: '春の新生活', sub: 'お弁当・作りおき', q: '弁当' }
 }
 
+/*
+  Gợi ý THEO TỪNG KÝ TỰ:
+  - Không dùng v-model: v-model của Vue bỏ qua mọi chữ khi IME tiếng Nhật đang
+    soạn (gõ 「うな」 chưa bấm Enter xác nhận thì q vẫn rỗng) → gợi ý chỉ hiện
+    sau khi xác nhận. Đọc thẳng giá trị ô nhập ở mỗi sự kiện input thì có ngay.
+  - Chờ 60ms (đủ gộp phím gõ nhanh, người dùng không thấy trễ), nhớ kết quả
+    theo chuỗi đã gõ (xoá lùi hiện tức thì), và bỏ phản hồi đến muộn của chuỗi
+    cũ để danh sách không nhảy lùi.
+*/
 let timer = null
+let seq = 0
+const cache = new Map()
+const translations = ref([])
+
+function onInput(e) {
+  q.value = e.target.value
+}
+
+function apply(r) {
+  suggestions.value = r.items || []
+  translations.value = r.translations || []
+  open.value = rows.value.length > 0
+}
+
 watch(q, (v) => {
   clearTimeout(timer)
   activeIndex.value = -1
-  if (!v || v.trim().length < 1) {
+  const key = (v || '').trim()
+  if (!key) {
     suggestions.value = []
+    translations.value = []
     open.value = false
     return
   }
-  // Chờ 180ms sau khi ngừng gõ mới gọi API, tránh gọi mỗi phím
+  if (cache.has(key)) return apply(cache.get(key))
+  const my = ++seq
   timer = setTimeout(async () => {
     try {
-      const r = await $fetch('/api/suggest', { params: { q: v } })
-      suggestions.value = r.items || []
-      open.value = suggestions.value.length > 0
+      const r = await $fetch('/api/suggest', { params: { q: key } })
+      if (cache.size > 200) cache.clear()
+      cache.set(key, r)
+      if (my === seq) apply(r)
     } catch {
-      suggestions.value = []
+      if (my === seq) apply({})
     }
-  }, 180)
+  }, 60)
 })
+
+/**
+ * Danh sách hiển thị: dòng dịch 「cà ri → カレー」 trên cùng (bấm là tìm bằng
+ * từ tiếng Nhật), rồi đến các gợi ý tiêu đề. Gộp một mảng để phím ↑↓ đi qua cả hai.
+ */
+const rows = computed(() => [
+  ...translations.value.map((t) => ({
+    kind: 'translate',
+    title: t.to,
+    from: t.from,
+    group: 'translate',
+    label: '翻訳',
+    route: `/search?q=${encodeURIComponent(t.to)}`,
+  })),
+  ...suggestions.value,
+])
 
 function go(term) {
   const t = (term ?? q.value).trim()
@@ -76,8 +119,8 @@ function go(term) {
 }
 
 function onEnter() {
-  if (activeIndex.value >= 0 && suggestions.value[activeIndex.value]) {
-    const s = suggestions.value[activeIndex.value]
+  if (activeIndex.value >= 0 && rows.value[activeIndex.value]) {
+    const s = rows.value[activeIndex.value]
     open.value = false
     router.push(s.route)
     return
@@ -86,9 +129,10 @@ function onEnter() {
 }
 
 function move(step) {
-  if (!open.value || !suggestions.value.length) return
-  const n = suggestions.value.length
-  activeIndex.value = (activeIndex.value + step + n + 1) % (n + 1) - 1
+  if (!open.value || !rows.value.length) return
+  const n = rows.value.length
+  // Vong qua -1 (o nhap) → 0..n-1 → -1: doi sang 0..n de lay modulo roi tru lai
+  activeIndex.value = ((activeIndex.value + 1 + step + n + 1) % (n + 1)) - 1
 }
 
 function onClickOutside(e) {
@@ -118,29 +162,35 @@ onBeforeUnmount(() => {
     <div class="ss-inner">
       <div class="ss-box">
         <input
-          v-model="q"
+          :value="q"
           type="search"
           class="ss-input"
           :placeholder="narrow ? '商品・料理・食材・店舗で検索' : '商品名・料理名・食材・店舗名を入力（例：うなぎ、カレー、上島店…）'"
           aria-label="サイト内検索"
+          autocomplete="off"
+          @input="onInput"
           @keydown.enter.prevent="onEnter"
           @keydown.down.prevent="move(1)"
           @keydown.up.prevent="move(-1)"
           @keydown.esc="open = false"
-          @focus="q && suggestions.length && (open = true)"
+          @focus="q && rows.length && (open = true)"
         />
         <button type="button" class="ss-btn" @click="go()">検索</button>
 
         <ul v-if="open" class="ss-suggest">
           <li
-            v-for="(s, i) in suggestions"
+            v-for="(s, i) in rows"
             :key="s.route + i"
-            :class="{ active: i === activeIndex }"
-            @mousedown.prevent="router.push(s.route)"
+            :class="{ active: i === activeIndex, 'ss-row-tr': s.kind === 'translate' }"
+            @mousedown.prevent="open = false; router.push(s.route)"
             @mouseenter="activeIndex = i"
           >
             <span class="ss-tag" :data-group="s.group">{{ s.label }}</span>
-            <span class="ss-title">{{ s.title }}</span>
+            <span v-if="s.kind === 'translate'" class="ss-title">
+              <span class="ss-from">{{ s.from }}</span> → <strong>{{ s.title }}</strong>
+            </span>
+            <span v-else class="ss-title">{{ s.title }}</span>
+            <small v-if="s.via" class="ss-via">{{ s.via }}</small>
           </li>
         </ul>
       </div>
@@ -319,6 +369,18 @@ $red: #c7273b;
   &[data-group='feature'] { background: #7e57c2; }
   &[data-group='promo'] { background: $red; }
   &[data-group='product'] { background: #a68c59; }
+  &[data-group='translate'] { background: #2e6fa8; }
+}
+
+// Dòng dịch ngoại ngữ → tiếng Nhật
+.ss-row-tr { background: #f4f8fc; }
+.ss-from { color: #777; }
+// Gợi ý có được nhờ từ đã dịch/đổi romaji — ghi nhỏ bên phải để khách hiểu vì sao
+.ss-via {
+  margin-left: auto;
+  flex: 0 0 auto;
+  font-size: 11px;
+  color: #999;
 }
 
 .ss-title {

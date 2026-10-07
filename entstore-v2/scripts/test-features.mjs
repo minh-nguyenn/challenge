@@ -107,7 +107,8 @@ const check = (name, ok, detail) => {
     for (const q of ['ăn gì với 2000 yên', '2000円で何が作れる？', 'what can i eat with 2000 yen']) {
       const r = await ask(q)
       check(`chatbot "${q}" tra loi theo ngan sach`,
-        r.intent === 'recipe' && /64/.test(r.answer), 'intent=' + r.intent)
+        // So mon lay tu trang tim kiem, khong viet cung: du lieu them mon moi moi thang
+        r.intent === 'recipe' && r.answer.includes(String(rc(b2000))), 'intent=' + r.intent + ', can ' + rc(b2000) + ' mon')
     }
 
     // Dakuten: bo dau chu Latin KHONG duoc lam hong chu Nhat (で = て + U+3099)
@@ -162,7 +163,8 @@ const check = (name, ok, detail) => {
 
   console.log('--- 6. Chatbot ---')
   const cases = [
-    ['1000円以下の料理を教えて', (r) => r.guard === 'over-budget', 'noi that khi khong co mon nao'],
+    // 500円: duoi muc mon re nhat (hien ~950円). 1000円 nay da co mon (ゆうれいビスケット)
+    ['500円以下の料理を教えて', (r) => r.guard === 'over-budget', 'noi that khi khong co mon nao'],
     ['2000円以内で作れる料理は？', (r) => /材料費/.test(r.answer), 'noi ra tien nguyen lieu'],
     ['浜松市で牛乳を買える店は？', (r) => r.intent === 'stock' && /牛乳/.test(r.answer), 'dung mat hang + cua hang'],
     ['特売は何がありますか', (r) => /%OFF/.test(r.answer), 'liet ke dung khuyen mai'],

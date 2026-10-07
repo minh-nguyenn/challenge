@@ -1,8 +1,13 @@
 <template>
+  <!--
+    Mọi thẻ công thức mở trang chi tiết TRONG SITE (/recipe/{id}: giá, 特売, 売場).
+    Site gốc đưa công thức mới sang Kitchen365 ở tab khác, nên khách rời site và
+    không thấy giá/khuyến mãi của cửa hàng. Món nào site chưa có nội dung thì
+    trang /recipe/{id} tự chuyển về link gốc (xem pages/recipe/[id].vue).
+  -->
   <div class="recipe-item">
     <section :title="recipeItem.title" class="recipe-box d-none-mobile">
-      <a :target="recipeItem.archive && recipeItem.archive.length > 0 ? '' : '_blank'"
-        :href="recipeItem.archive && recipeItem.archive.length > 0 ? `/service/recipe/archive/detail/${recipeItem.id}` : `${recipeItem.target_url}`"
+      <a :href="`/recipe/${recipeItem.id}`"
         class="check">レシピを見る</a>
       <span v-if="checkRecipeNew(recipeItem.open_start)" class="new">new</span>
       <p>
@@ -17,8 +22,7 @@
     </section>
     <section class="recipe-box-mb d-none-des">
       <span v-if="checkRecipeNew(recipeItem.open_start)" class="new">new</span>
-      <a :target="recipeItem.archive && recipeItem.archive.length > 0 ? '' : '_blank'"
-        :href="recipeItem.archive && recipeItem.archive.length > 0 ? `/service/recipe/archive/detail/${recipeItem.id}` : `${recipeItem.target_url}`">
+      <a :href="`/recipe/${recipeItem.id}`">
         <figure>
           <img v-if="recipeItem.filename1 && recipeItem.filename1.url" :src="$appendWebpFormat(recipeItem.filename1.url)"
             class="fullImage">
